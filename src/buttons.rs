@@ -73,16 +73,19 @@ impl ButtonHandler {
     }
 
     fn handle_button_press(&self, event: InputEvent) -> Option<Button> {
+        self.handle_key_press(event)
+            .and_then(|kc| self.find_button_for_key_code(kc))
+    }
+
+    fn handle_key_press(&self, event: InputEvent) -> Option<KeyCode> {
         if !self.is_key_released(event) {
             return None;
         }
 
-        let key_code = match event.destructure() {
+        match event.destructure() {
             EventSummary::Key(_, key_code, _) => Some(key_code),
             _ => None,
-        };
-
-        key_code.and_then(|kc| self.find_button_for_key_code(kc))
+        }
     }
 
     fn is_key_released(&self, event: InputEvent) -> bool {
