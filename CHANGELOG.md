@@ -3,6 +3,9 @@
 
 ## 0.9.0 (unreleased)
 
+- Changed status update behavior to trigger on button press instead of on
+  button release.
+
 - Added support for mouse buttons.
 
 - Added fallback to play default sound when no specific sounds are configured

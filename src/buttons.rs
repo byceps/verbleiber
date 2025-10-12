@@ -78,7 +78,7 @@ impl ButtonHandler {
     }
 
     fn handle_key_press(&self, event: InputEvent) -> Option<KeyCode> {
-        if !self.is_key_released(event) {
+        if !self.is_key_pressed(event) {
             return None;
         }
 
@@ -88,8 +88,8 @@ impl ButtonHandler {
         }
     }
 
-    fn is_key_released(&self, event: InputEvent) -> bool {
-        event.event_type() == EventType::KEY && event.value() == 0
+    fn is_key_pressed(&self, event: InputEvent) -> bool {
+        event.event_type() == EventType::KEY && event.value() == 1
     }
 
     fn find_button_for_key_code(&self, key_code: KeyCode) -> Option<Button> {
