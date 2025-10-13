@@ -51,14 +51,10 @@ impl KeyCodeNameMapping {
         insert("dead", KeyCode::BTN_DEAD);
 
         // gamepad
-        insert("south", KeyCode::BTN_SOUTH);
         insert("a", KeyCode::BTN_SOUTH);
-        insert("east", KeyCode::BTN_EAST);
         insert("b", KeyCode::BTN_EAST);
         insert("c", KeyCode::BTN_C);
-        insert("north", KeyCode::BTN_NORTH);
         insert("x", KeyCode::BTN_NORTH);
-        insert("west", KeyCode::BTN_WEST);
         insert("y", KeyCode::BTN_WEST);
         insert("z", KeyCode::BTN_Z);
         insert("tl", KeyCode::BTN_TL);

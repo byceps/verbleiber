@@ -8,6 +8,11 @@
 
 - Added support for mouse buttons.
 
+- Removed redundant key names `north`, `west`, `south`, and `east` so that the
+  key code/name mapping becomes a bijective/one-to-one mapping.
+
+  Use key names `x`, `y`, `a`, and `b`, respectively, instead.
+
 - Added fallback to play default sound when no specific sounds are configured
   for a whereabouts name.
 
