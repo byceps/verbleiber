@@ -6,15 +6,15 @@
 - Added subcommand `identify-buttons` to show key code and name for pressed
   buttons.
 
-- Changed status update behavior to trigger on button press instead of on
-  button release.
-
 - Added support for mouse buttons.
 
 - Removed redundant key names `north`, `west`, `south`, and `east` so that the
   key code/name mapping becomes a bijective/one-to-one mapping.
 
   Use key names `x`, `y`, `a`, and `b`, respectively, instead.
+
+- Changed status update behavior to trigger on button press instead of on
+  button release.
 
 - Added fallback to play default sound when no specific sounds are configured
   for a whereabouts name.
