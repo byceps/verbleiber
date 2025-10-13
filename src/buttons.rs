@@ -14,6 +14,28 @@ use crate::devices;
 use crate::events::EventSender;
 use crate::keycodenames::{KeyCodeNameMapping, KeyName};
 
+pub(crate) fn identify_buttons(device_name: String) -> Result<()> {
+    let key_code_name_mapping = KeyCodeNameMapping::new()?;
+
+    let device = open_device(device_name)?;
+
+    println!("\nPress buttons now. Ctrl-C to exit.");
+
+    handle_key_presses(device, |code| {
+        let name_repr = match key_code_name_mapping.find_name_for_code(code) {
+            Some(name) => format!("'{}'", name),
+            None => "not assigned".to_owned(),
+        };
+
+        println!(
+            "Button press detected. Key code: {:?}. Key name: {}.",
+            code, name_repr
+        );
+
+        Ok(())
+    })
+}
+
 pub(crate) fn handle_button_presses(
     device_name: String,
     buttons_to_key_code_names: HashMap<Button, KeyName>,

@@ -96,4 +96,8 @@ impl KeyCodeNameMapping {
     pub(crate) fn find_code_for_name(&self, name: KeyName) -> Option<&KeyCode> {
         self.names_to_codes.get_by_left(&name)
     }
+
+    pub(crate) fn find_name_for_code(&self, code: KeyCode) -> Option<&KeyName> {
+        self.names_to_codes.get_by_right(&code)
+    }
 }

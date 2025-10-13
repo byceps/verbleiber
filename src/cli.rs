@@ -17,6 +17,14 @@ pub(crate) struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub(crate) enum Command {
+    /// Detect button presses and display corresponding key code names
+    IdentifyButtons {
+        /// Specify button input device (e.g.
+        /// `/dev/input/by-id/usb-RANDOM-GAMEPAD-event-joystick`)
+        #[clap(short = 'd', long = "device")]
+        device: String,
+    },
+
     /// Register a Verbleiber client
     Register {
         /// Specify API hots

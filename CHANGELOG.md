@@ -3,6 +3,9 @@
 
 ## 0.9.0 (unreleased)
 
+- Added subcommand `identify-buttons` to show key code and name for pressed
+  buttons.
+
 - Changed status update behavior to trigger on button press instead of on
   button release.
 

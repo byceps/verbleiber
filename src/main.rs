@@ -36,6 +36,7 @@ fn main() -> Result<()> {
     let cli = cli::parse_cli();
 
     match cli.command {
+        cli::Command::IdentifyButtons { device } => buttons::identify_buttons(device)?,
         cli::Command::Register {
             base_url,
             button_count,
