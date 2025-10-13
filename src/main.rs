@@ -88,8 +88,8 @@ fn run(config_filename: PathBuf) -> Result<()> {
     Ok(())
 }
 
-fn handle_ctrl_c(sender: &Sender<Event>) {
-    sender
+fn handle_ctrl_c(event_sender: &Sender<Event>) {
+    event_sender
         .send(Event::ShutdownRequested)
         .expect("Could not send shutdown signal")
 }

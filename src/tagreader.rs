@@ -12,10 +12,10 @@ use flume::Sender;
 use crate::devices;
 use crate::events::Event;
 
-pub(crate) fn handle_tag_reads(device_name: String, sender: Sender<Event>) -> Result<()> {
+pub(crate) fn handle_tag_reads(device_name: String, event_sender: Sender<Event>) -> Result<()> {
     let device = open_device(device_name)?;
 
-    let tag_read_handler = TagReadHandler::new(sender);
+    let tag_read_handler = TagReadHandler::new(event_sender);
     thread::spawn(move || tag_read_handler.run(device));
     Ok(())
 }
@@ -26,12 +26,12 @@ fn open_device(device_name: String) -> Result<Device> {
 }
 
 struct TagReadHandler {
-    sender: Sender<Event>,
+    event_sender: Sender<Event>,
 }
 
 impl TagReadHandler {
-    fn new(sender: Sender<Event>) -> Self {
-        Self { sender }
+    fn new(event_sender: Sender<Event>) -> Self {
+        Self { event_sender }
     }
 
     fn run(&self, mut device: Device) -> Result<()> {
@@ -42,7 +42,7 @@ impl TagReadHandler {
                     let event = Event::TagRead {
                         tag: value.to_string(),
                     };
-                    self.sender.send(event)?;
+                    self.event_sender.send(event)?;
                 }
             }
         }

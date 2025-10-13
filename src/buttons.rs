@@ -17,13 +17,13 @@ use crate::events::Event;
 pub(crate) fn handle_button_presses(
     device_name: String,
     buttons_to_key_code_names: HashMap<Button, String>,
-    sender: Sender<Event>,
+    event_sender: Sender<Event>,
 ) -> Result<()> {
     let key_codes_to_buttons = KeyCodeToButtonMapping::new(buttons_to_key_code_names)?;
 
     let device = open_device(device_name)?;
 
-    let button_handler = ButtonHandler::new(key_codes_to_buttons, sender);
+    let button_handler = ButtonHandler::new(key_codes_to_buttons, event_sender);
 
     thread::spawn(move || {
         handle_key_presses(device, |key_code| button_handler.handle_key_code(key_code))
@@ -64,21 +64,21 @@ fn open_device(device_name: String) -> Result<Device> {
 
 struct ButtonHandler {
     key_codes_to_buttons: KeyCodeToButtonMapping,
-    sender: Sender<Event>,
+    event_sender: Sender<Event>,
 }
 
 impl ButtonHandler {
-    fn new(key_codes_to_buttons: KeyCodeToButtonMapping, sender: Sender<Event>) -> Self {
+    fn new(key_codes_to_buttons: KeyCodeToButtonMapping, event_sender: Sender<Event>) -> Self {
         Self {
             key_codes_to_buttons,
-            sender,
+            event_sender,
         }
     }
 
     fn handle_key_code(&self, key_code: KeyCode) -> Result<()> {
         if let Some(button) = self.key_codes_to_buttons.find_button_for_key_code(key_code) {
             let event = Event::ButtonPressed { button };
-            self.sender.send(event)?;
+            self.event_sender.send(event)?;
         }
         Ok(())
     }
