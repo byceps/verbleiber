@@ -6,7 +6,9 @@
 use anyhow::{Result, anyhow};
 use evdev::Device;
 
-pub(crate) fn open_input_device(device_name: String, label: String) -> Result<Device> {
+pub(crate) type DeviceName = String;
+
+pub(crate) fn open_input_device(device_name: DeviceName, label: String) -> Result<Device> {
     Device::open(device_name)
         .map_err(|e| anyhow!("Could not open {}: {}", label, e))
         .and_then(|mut device| {

@@ -73,7 +73,7 @@ fn run(config_filename: PathBuf) -> Result<()> {
 
     if let UserMode::MultiUser = user_mode {
         match config.reader_input_device {
-            Some(device) => tagreader::handle_tag_reads(device, tx2)?,
+            Some(device_name) => tagreader::handle_tag_reads(device_name, tx2)?,
             None => bail!("No reader device configured, but one is required in multi-user mode."),
         }
     }

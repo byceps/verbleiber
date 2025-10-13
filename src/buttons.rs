@@ -11,10 +11,11 @@ use evdev::{Device, EventSummary, KeyCode};
 use serde::Deserialize;
 
 use crate::devices;
+use crate::devices::DeviceName;
 use crate::events::EventSender;
 use crate::keycodenames::{KeyCodeNameMapping, KeyName};
 
-pub(crate) fn identify_buttons(device_name: String) -> Result<()> {
+pub(crate) fn identify_buttons(device_name: DeviceName) -> Result<()> {
     let key_code_name_mapping = KeyCodeNameMapping::new()?;
 
     let device = open_device(device_name)?;
@@ -37,7 +38,7 @@ pub(crate) fn identify_buttons(device_name: String) -> Result<()> {
 }
 
 pub(crate) fn handle_button_presses(
-    device_name: String,
+    device_name: DeviceName,
     buttons_to_key_code_names: HashMap<Button, KeyName>,
     event_sender: EventSender,
 ) -> Result<()> {
@@ -86,7 +87,7 @@ impl KeyCodeToButtonMapping {
     }
 }
 
-fn open_device(device_name: String) -> Result<Device> {
+fn open_device(device_name: DeviceName) -> Result<Device> {
     let device_label = "button input device".to_string();
     devices::open_input_device(device_name, device_label)
 }

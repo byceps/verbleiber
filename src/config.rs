@@ -11,13 +11,14 @@ use anyhow::Result;
 use serde::Deserialize;
 
 use crate::buttons::Button;
+use crate::devices::DeviceName;
 use crate::keycodenames::KeyName;
 use crate::model::{PartyId, UserId, UserMode};
 
 #[derive(Deserialize)]
 pub(crate) struct Config {
-    pub reader_input_device: Option<String>,
-    pub button_input_device: String,
+    pub reader_input_device: Option<DeviceName>,
+    pub button_input_device: DeviceName,
 
     #[serde(rename = "buttons_to_key_codes")]
     pub buttons_to_key_code_names: HashMap<Button, KeyName>,

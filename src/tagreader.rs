@@ -9,9 +9,10 @@ use anyhow::Result;
 use evdev::{Device, EventSummary, EventType, InputEvent, KeyCode};
 
 use crate::devices;
+use crate::devices::DeviceName;
 use crate::events::EventSender;
 
-pub(crate) fn handle_tag_reads(device_name: String, event_sender: EventSender) -> Result<()> {
+pub(crate) fn handle_tag_reads(device_name: DeviceName, event_sender: EventSender) -> Result<()> {
     let device = open_device(device_name)?;
 
     let tag_read_handler = TagReadHandler::new(event_sender);
@@ -19,7 +20,7 @@ pub(crate) fn handle_tag_reads(device_name: String, event_sender: EventSender) -
     Ok(())
 }
 
-fn open_device(device_name: String) -> Result<Device> {
+fn open_device(device_name: DeviceName) -> Result<Device> {
     let device_label = "reader input device".to_string();
     devices::open_input_device(device_name, device_label)
 }
