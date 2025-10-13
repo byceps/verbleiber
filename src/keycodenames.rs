@@ -3,19 +3,18 @@
  * License: MIT
  */
 
-use std::collections::HashMap;
-
+use bimap::BiMap;
 use evdev::KeyCode;
 
 pub(crate) type KeyName = String;
 
 pub(crate) struct KeyCodeNameMapping {
-    names_to_codes: HashMap<KeyName, KeyCode>,
+    names_to_codes: BiMap<KeyName, KeyCode>,
 }
 
 impl KeyCodeNameMapping {
     pub(crate) fn new() -> Self {
-        let mut names_to_codes: HashMap<KeyName, KeyCode> = HashMap::new();
+        let mut names_to_codes: BiMap<KeyName, KeyCode> = BiMap::new();
 
         let mut insert = |name: &str, code: KeyCode| {
             names_to_codes.insert(name.to_owned(), code);
@@ -86,6 +85,6 @@ impl KeyCodeNameMapping {
     }
 
     pub(crate) fn find_code_for_name(&self, name: KeyName) -> Option<&KeyCode> {
-        self.names_to_codes.get(&name)
+        self.names_to_codes.get_by_left(&name)
     }
 }
