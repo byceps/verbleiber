@@ -15,3 +15,7 @@ pub(crate) enum Event {
 
 pub(crate) type EventReceiver = Receiver<Event>;
 pub(crate) type EventSender = Sender<Event>;
+
+pub(crate) fn create_event_channel() -> (EventSender, EventReceiver) {
+    flume::unbounded()
+}

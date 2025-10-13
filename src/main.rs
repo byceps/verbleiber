@@ -63,7 +63,7 @@ fn run(config_filename: PathBuf) -> Result<()> {
 
     let sounds_path = config.sounds_path.clone();
 
-    let (tx1, rx): (EventSender, EventReceiver) = flume::unbounded();
+    let (tx1, rx): (EventSender, EventReceiver) = events::create_event_channel();
     let tx2 = tx1.clone();
     let tx3 = tx1.clone();
 
