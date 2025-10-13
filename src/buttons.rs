@@ -11,7 +11,7 @@ use evdev::{Device, EventSummary, KeyCode};
 use serde::Deserialize;
 
 use crate::devices;
-use crate::events::{Event, EventSender};
+use crate::events::EventSender;
 
 pub(crate) fn handle_button_presses(
     device_name: String,
@@ -76,8 +76,7 @@ impl ButtonHandler {
 
     fn handle_key_code(&self, key_code: KeyCode) -> Result<()> {
         if let Some(button) = self.key_codes_to_buttons.find_button_for_key_code(key_code) {
-            let event = Event::ButtonPressed { button };
-            self.event_sender.send(event)?;
+            self.event_sender.send_button_pressed(button)?;
         }
         Ok(())
     }

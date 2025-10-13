@@ -25,7 +25,19 @@ impl EventSender {
         Self { sender }
     }
 
-    pub(crate) fn send(&self, msg: Event) -> Result<(), SendError<Event>> {
+    pub(crate) fn send_tag_read(&self, tag: String) -> Result<(), SendError<Event>> {
+        self.send(Event::TagRead { tag })
+    }
+
+    pub(crate) fn send_button_pressed(&self, button: Button) -> Result<(), SendError<Event>> {
+        self.send(Event::ButtonPressed { button })
+    }
+
+    pub(crate) fn send_shutdown_requested(&self) -> Result<(), SendError<Event>> {
+        self.send(Event::ShutdownRequested)
+    }
+
+    fn send(&self, msg: Event) -> Result<(), SendError<Event>> {
         self.sender.send(msg)
     }
 }

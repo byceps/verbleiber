@@ -23,7 +23,7 @@ mod registration;
 mod tagreader;
 
 use crate::client::run_client;
-use crate::events::{Event, EventReceiver, EventSender};
+use crate::events::{EventReceiver, EventSender};
 use crate::model::UserMode;
 
 fn main() -> Result<()> {
@@ -89,6 +89,6 @@ fn run(config_filename: PathBuf) -> Result<()> {
 
 fn handle_ctrl_c(event_sender: &EventSender) {
     event_sender
-        .send(Event::ShutdownRequested)
+        .send_shutdown_requested()
         .expect("Could not send shutdown signal")
 }
