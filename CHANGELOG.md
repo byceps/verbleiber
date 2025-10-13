@@ -23,6 +23,8 @@
 
 - Updated log to v0.4.28.
 
+- Updated toml to v0.9.8.
+
 
 ## 0.8.1 (2025-10-09)
 

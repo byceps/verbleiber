@@ -22,7 +22,7 @@ nanorand = "0.8.0"
 rodio = { version = "0.21.1", default-features = false, features = ["playback", "vorbis"] }
 serde = { version = "1.0", features = ["derive"] }
 simple_logger = "5.0.0"
-toml = "0.9.5"
+toml = "0.9.8"
 ureq = { version = "3.1.0", features = ["json"] }
 
 [profile.release]
