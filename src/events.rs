@@ -3,7 +3,7 @@
  * License: MIT
  */
 
-use flume::{Receiver, Sender};
+use flume::{Receiver, SendError, Sender};
 
 use crate::buttons::Button;
 
@@ -14,8 +14,23 @@ pub(crate) enum Event {
 }
 
 pub(crate) type EventReceiver = Receiver<Event>;
-pub(crate) type EventSender = Sender<Event>;
+
+#[derive(Clone)]
+pub(crate) struct EventSender {
+    sender: Sender<Event>,
+}
+
+impl EventSender {
+    fn new(sender: Sender<Event>) -> Self {
+        Self { sender }
+    }
+
+    pub(crate) fn send(&self, msg: Event) -> Result<(), SendError<Event>> {
+        self.sender.send(msg)
+    }
+}
 
 pub(crate) fn create_event_channel() -> (EventSender, EventReceiver) {
-    flume::unbounded()
+    let (sender, receiver) = flume::unbounded();
+    (EventSender::new(sender), receiver)
 }
