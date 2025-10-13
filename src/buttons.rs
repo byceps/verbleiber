@@ -8,16 +8,15 @@ use std::thread;
 
 use anyhow::{Context, Result};
 use evdev::{Device, EventSummary, KeyCode};
-use flume::Sender;
 use serde::Deserialize;
 
 use crate::devices;
-use crate::events::Event;
+use crate::events::{Event, EventSender};
 
 pub(crate) fn handle_button_presses(
     device_name: String,
     buttons_to_key_code_names: HashMap<Button, String>,
-    event_sender: Sender<Event>,
+    event_sender: EventSender,
 ) -> Result<()> {
     let key_codes_to_buttons = KeyCodeToButtonMapping::new(buttons_to_key_code_names)?;
 
@@ -64,11 +63,11 @@ fn open_device(device_name: String) -> Result<Device> {
 
 struct ButtonHandler {
     key_codes_to_buttons: KeyCodeToButtonMapping,
-    event_sender: Sender<Event>,
+    event_sender: EventSender,
 }
 
 impl ButtonHandler {
-    fn new(key_codes_to_buttons: KeyCodeToButtonMapping, event_sender: Sender<Event>) -> Self {
+    fn new(key_codes_to_buttons: KeyCodeToButtonMapping, event_sender: EventSender) -> Self {
         Self {
             key_codes_to_buttons,
             event_sender,

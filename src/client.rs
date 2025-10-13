@@ -6,13 +6,12 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use flume::Receiver;
 
 use crate::api::ApiClient;
 use crate::audio::AudioPlayer;
 use crate::buttons::Button;
 use crate::config::{ApiConfig, PartyConfig};
-use crate::events::Event;
+use crate::events::{Event, EventReceiver};
 use crate::model::{UserId, UserMode};
 use crate::random::Random;
 
@@ -21,7 +20,7 @@ struct Client {
     random: Random,
     api_client: ApiClient,
     party_config: PartyConfig,
-    event_receiver: Receiver<Event>,
+    event_receiver: EventReceiver,
 }
 
 impl Client {
@@ -29,7 +28,7 @@ impl Client {
         sounds_path: PathBuf,
         api_config: &ApiConfig,
         party_config: PartyConfig,
-        event_receiver: Receiver<Event>,
+        event_receiver: EventReceiver,
     ) -> Result<Self> {
         Ok(Self {
             audio_player: AudioPlayer::new(sounds_path)?,
@@ -247,7 +246,7 @@ pub fn run_client(
     sounds_path: PathBuf,
     api_config: &ApiConfig,
     party_config: PartyConfig,
-    event_receiver: Receiver<Event>,
+    event_receiver: EventReceiver,
     user_mode: &UserMode,
 ) -> Result<()> {
     let client = Client::new(sounds_path, api_config, party_config, event_receiver)?;

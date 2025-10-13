@@ -3,6 +3,8 @@
  * License: MIT
  */
 
+use flume::{Receiver, Sender};
+
 use crate::buttons::Button;
 
 pub(crate) enum Event {
@@ -10,3 +12,6 @@ pub(crate) enum Event {
     ButtonPressed { button: Button },
     ShutdownRequested,
 }
+
+pub(crate) type EventReceiver = Receiver<Event>;
+pub(crate) type EventSender = Sender<Event>;

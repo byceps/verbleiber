@@ -7,12 +7,11 @@ use std::thread;
 
 use anyhow::Result;
 use evdev::{Device, EventSummary, EventType, InputEvent, KeyCode};
-use flume::Sender;
 
 use crate::devices;
-use crate::events::Event;
+use crate::events::{Event, EventSender};
 
-pub(crate) fn handle_tag_reads(device_name: String, event_sender: Sender<Event>) -> Result<()> {
+pub(crate) fn handle_tag_reads(device_name: String, event_sender: EventSender) -> Result<()> {
     let device = open_device(device_name)?;
 
     let tag_read_handler = TagReadHandler::new(event_sender);
@@ -26,11 +25,11 @@ fn open_device(device_name: String) -> Result<Device> {
 }
 
 struct TagReadHandler {
-    event_sender: Sender<Event>,
+    event_sender: EventSender,
 }
 
 impl TagReadHandler {
-    fn new(event_sender: Sender<Event>) -> Self {
+    fn new(event_sender: EventSender) -> Self {
         Self { event_sender }
     }
 

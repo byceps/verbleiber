@@ -6,7 +6,6 @@
 use std::path::PathBuf;
 
 use anyhow::{Result, bail};
-use flume::{Receiver, Sender};
 use simple_logger::SimpleLogger;
 
 mod api;
@@ -24,7 +23,7 @@ mod registration;
 mod tagreader;
 
 use crate::client::run_client;
-use crate::events::Event;
+use crate::events::{Event, EventReceiver, EventSender};
 use crate::model::UserMode;
 
 fn main() -> Result<()> {
@@ -64,7 +63,7 @@ fn run(config_filename: PathBuf) -> Result<()> {
 
     let sounds_path = config.sounds_path.clone();
 
-    let (tx1, rx): (Sender<Event>, Receiver<Event>) = flume::unbounded();
+    let (tx1, rx): (EventSender, EventReceiver) = flume::unbounded();
     let tx2 = tx1.clone();
     let tx3 = tx1.clone();
 
@@ -88,7 +87,7 @@ fn run(config_filename: PathBuf) -> Result<()> {
     Ok(())
 }
 
-fn handle_ctrl_c(event_sender: &Sender<Event>) {
+fn handle_ctrl_c(event_sender: &EventSender) {
     event_sender
         .send(Event::ShutdownRequested)
         .expect("Could not send shutdown signal")
