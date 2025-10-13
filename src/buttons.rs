@@ -12,11 +12,11 @@ use serde::Deserialize;
 
 use crate::devices;
 use crate::events::EventSender;
-use crate::keycodenames::KeyCodeNameMapping;
+use crate::keycodenames::{KeyCodeNameMapping, KeyName};
 
 pub(crate) fn handle_button_presses(
     device_name: String,
-    buttons_to_key_code_names: HashMap<Button, String>,
+    buttons_to_key_code_names: HashMap<Button, KeyName>,
     event_sender: EventSender,
 ) -> Result<()> {
     let key_code_name_mapping = KeyCodeNameMapping::new();
@@ -42,7 +42,7 @@ struct KeyCodeToButtonMapping {
 impl KeyCodeToButtonMapping {
     fn new(
         key_code_name_mapping: KeyCodeNameMapping,
-        buttons_to_key_code_names: HashMap<Button, String>,
+        buttons_to_key_code_names: HashMap<Button, KeyName>,
     ) -> Result<Self> {
         let mut key_codes_to_buttons: HashMap<KeyCode, Button> = HashMap::new();
 

@@ -7,13 +7,15 @@ use std::collections::HashMap;
 
 use evdev::KeyCode;
 
+pub(crate) type KeyName = String;
+
 pub(crate) struct KeyCodeNameMapping {
-    names_to_codes: HashMap<String, KeyCode>,
+    names_to_codes: HashMap<KeyName, KeyCode>,
 }
 
 impl KeyCodeNameMapping {
     pub(crate) fn new() -> Self {
-        let mut names_to_codes: HashMap<String, KeyCode> = HashMap::new();
+        let mut names_to_codes: HashMap<KeyName, KeyCode> = HashMap::new();
 
         let mut insert = |name: &str, code: KeyCode| {
             names_to_codes.insert(name.to_owned(), code);
@@ -87,7 +89,7 @@ impl KeyCodeNameMapping {
         Self { names_to_codes }
     }
 
-    pub(crate) fn find_code_for_name(&self, name: String) -> Option<&KeyCode> {
+    pub(crate) fn find_code_for_name(&self, name: KeyName) -> Option<&KeyCode> {
         self.names_to_codes.get(&name)
     }
 }

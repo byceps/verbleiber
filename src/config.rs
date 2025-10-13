@@ -11,6 +11,7 @@ use anyhow::Result;
 use serde::Deserialize;
 
 use crate::buttons::Button;
+use crate::keycodenames::KeyName;
 use crate::model::{PartyId, UserId, UserMode};
 
 #[derive(Deserialize)]
@@ -19,7 +20,7 @@ pub(crate) struct Config {
     pub button_input_device: String,
 
     #[serde(rename = "buttons_to_key_codes")]
-    pub buttons_to_key_code_names: HashMap<Button, String>,
+    pub buttons_to_key_code_names: HashMap<Button, KeyName>,
 
     pub sounds_path: PathBuf,
     pub api: ApiConfig,
