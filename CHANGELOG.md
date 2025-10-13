@@ -21,6 +21,8 @@
 
 - Updated clap to v4.5.49.
 
+- Updated log to v0.4.28.
+
 
 ## 0.8.1 (2025-10-09)
 
