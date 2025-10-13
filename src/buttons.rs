@@ -19,7 +19,7 @@ pub(crate) fn handle_button_presses(
     buttons_to_key_code_names: HashMap<Button, KeyName>,
     event_sender: EventSender,
 ) -> Result<()> {
-    let key_code_name_mapping = KeyCodeNameMapping::new();
+    let key_code_name_mapping = KeyCodeNameMapping::new()?;
 
     let key_codes_to_buttons =
         KeyCodeToButtonMapping::new(key_code_name_mapping, buttons_to_key_code_names)?;
