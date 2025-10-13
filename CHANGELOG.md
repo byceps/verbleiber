@@ -19,6 +19,8 @@
 - Added fallback to play default sound when no specific sounds are configured
   for a whereabouts name.
 
+- Updated clap to v4.5.49.
+
 
 ## 0.8.1 (2025-10-09)
 
