@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::thread;
 
 use anyhow::{Context, Result};
-use evdev::{Device, EventSummary, EventType, InputEvent, KeyCode};
+use evdev::{Device, EventSummary, InputEvent, KeyCode};
 use flume::Sender;
 use serde::Deserialize;
 
@@ -78,18 +78,10 @@ impl ButtonHandler {
     }
 
     fn handle_key_press(&self, event: InputEvent) -> Option<KeyCode> {
-        if !self.is_key_pressed(event) {
-            return None;
-        }
-
         match event.destructure() {
-            EventSummary::Key(_, key_code, _) => Some(key_code),
+            EventSummary::Key(_, key_code, 1) => Some(key_code),
             _ => None,
         }
-    }
-
-    fn is_key_pressed(&self, event: InputEvent) -> bool {
-        event.event_type() == EventType::KEY && event.value() == 1
     }
 
     fn find_button_for_key_code(&self, key_code: KeyCode) -> Option<Button> {
