@@ -12,13 +12,17 @@ use serde::Deserialize;
 
 use crate::devices;
 use crate::events::EventSender;
+use crate::keycodenames::KeyCodeNameMapping;
 
 pub(crate) fn handle_button_presses(
     device_name: String,
     buttons_to_key_code_names: HashMap<Button, String>,
     event_sender: EventSender,
 ) -> Result<()> {
-    let key_codes_to_buttons = KeyCodeToButtonMapping::new(buttons_to_key_code_names)?;
+    let key_code_name_mapping = KeyCodeNameMapping::new();
+
+    let key_codes_to_buttons =
+        KeyCodeToButtonMapping::new(key_code_name_mapping, buttons_to_key_code_names)?;
 
     let device = open_device(device_name)?;
 
@@ -36,14 +40,18 @@ struct KeyCodeToButtonMapping {
 }
 
 impl KeyCodeToButtonMapping {
-    fn new(buttons_to_key_code_names: HashMap<Button, String>) -> Result<Self> {
+    fn new(
+        key_code_name_mapping: KeyCodeNameMapping,
+        buttons_to_key_code_names: HashMap<Button, String>,
+    ) -> Result<Self> {
         let mut key_codes_to_buttons: HashMap<KeyCode, Button> = HashMap::new();
 
-        for (button, key_code_name) in buttons_to_key_code_names {
-            let key_code = find_key_code_by_name(&key_code_name)
-                .with_context(|| format!("Unknown button key code name '{}'", key_code_name))?;
+        for (button, key_name) in buttons_to_key_code_names {
+            let key_code = key_code_name_mapping
+                .find_code_for_name(key_name.clone())
+                .with_context(|| format!("Unknown button key name '{}'", key_name))?;
 
-            key_codes_to_buttons.insert(key_code, button);
+            key_codes_to_buttons.insert(*key_code, button);
         }
 
         Ok(Self {
@@ -92,73 +100,6 @@ where
                 handle_key_code(key_code)?
             }
         }
-    }
-}
-
-fn find_key_code_by_name(name: &str) -> Option<KeyCode> {
-    match name {
-        // mouse
-        "left" => Some(KeyCode::BTN_LEFT),
-        "right" => Some(KeyCode::BTN_RIGHT),
-        "middle" => Some(KeyCode::BTN_MIDDLE),
-        "side" => Some(KeyCode::BTN_SIDE),
-        "extra" => Some(KeyCode::BTN_EXTRA),
-        "forward" => Some(KeyCode::BTN_FORWARD),
-        "back" => Some(KeyCode::BTN_BACK),
-        "task" => Some(KeyCode::BTN_TASK),
-
-        // joystick
-        "trigger" => Some(KeyCode::BTN_TRIGGER),
-        "thumb" => Some(KeyCode::BTN_THUMB),
-        "thumb2" => Some(KeyCode::BTN_THUMB2),
-        "top" => Some(KeyCode::BTN_TOP),
-        "top2" => Some(KeyCode::BTN_TOP2),
-        "pinkie" => Some(KeyCode::BTN_PINKIE),
-        "base" => Some(KeyCode::BTN_BASE),
-        "base2" => Some(KeyCode::BTN_BASE2),
-        "base3" => Some(KeyCode::BTN_BASE3),
-        "base4" => Some(KeyCode::BTN_BASE4),
-        "base5" => Some(KeyCode::BTN_BASE5),
-        "base6" => Some(KeyCode::BTN_BASE6),
-        "dead" => Some(KeyCode::BTN_DEAD),
-
-        // gamepad
-        "south" => Some(KeyCode::BTN_SOUTH),
-        "a" => Some(KeyCode::BTN_SOUTH),
-        "east" => Some(KeyCode::BTN_EAST),
-        "b" => Some(KeyCode::BTN_EAST),
-        "c" => Some(KeyCode::BTN_C),
-        "north" => Some(KeyCode::BTN_NORTH),
-        "x" => Some(KeyCode::BTN_NORTH),
-        "west" => Some(KeyCode::BTN_WEST),
-        "y" => Some(KeyCode::BTN_WEST),
-        "z" => Some(KeyCode::BTN_Z),
-        "tl" => Some(KeyCode::BTN_TL),
-        "tr" => Some(KeyCode::BTN_TR),
-        "tl2" => Some(KeyCode::BTN_TL2),
-        "tr2" => Some(KeyCode::BTN_TR2),
-        "select" => Some(KeyCode::BTN_SELECT),
-        "start" => Some(KeyCode::BTN_START),
-        "mode" => Some(KeyCode::BTN_MODE),
-        "thumbl" => Some(KeyCode::BTN_THUMBL),
-        "thumbr" => Some(KeyCode::BTN_THUMBR),
-
-        // directional pad
-        "dpad_up" => Some(KeyCode::BTN_DPAD_UP),
-        "dpad_down" => Some(KeyCode::BTN_DPAD_DOWN),
-        "dpad_left" => Some(KeyCode::BTN_DPAD_LEFT),
-        "dpad_right" => Some(KeyCode::BTN_DPAD_RIGHT),
-
-        "trigger_happy1" => Some(KeyCode::BTN_TRIGGER_HAPPY1),
-        "trigger_happy2" => Some(KeyCode::BTN_TRIGGER_HAPPY2),
-        "trigger_happy3" => Some(KeyCode::BTN_TRIGGER_HAPPY3),
-        "trigger_happy4" => Some(KeyCode::BTN_TRIGGER_HAPPY4),
-        "trigger_happy5" => Some(KeyCode::BTN_TRIGGER_HAPPY5),
-        "trigger_happy6" => Some(KeyCode::BTN_TRIGGER_HAPPY6),
-        "trigger_happy7" => Some(KeyCode::BTN_TRIGGER_HAPPY7),
-        "trigger_happy8" => Some(KeyCode::BTN_TRIGGER_HAPPY8),
-
-        _ => None,
     }
 }
 

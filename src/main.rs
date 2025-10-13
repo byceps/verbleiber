@@ -17,6 +17,7 @@ mod config;
 mod devices;
 mod events;
 mod http;
+mod keycodenames;
 mod model;
 mod random;
 mod registration;
