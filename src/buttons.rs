@@ -25,9 +25,8 @@ pub(crate) fn handle_button_presses(
 
     let button_handler = ButtonHandler::new(key_codes_to_buttons, sender);
 
-    let key_press_handler = KeyPressHandler::new();
     thread::spawn(move || {
-        key_press_handler.run(device, |key_code| button_handler.handle_key_code(key_code))
+        handle_key_presses(device, |key_code| button_handler.handle_key_code(key_code))
     });
 
     Ok(())
@@ -85,22 +84,14 @@ impl ButtonHandler {
     }
 }
 
-struct KeyPressHandler {}
-
-impl KeyPressHandler {
-    fn new() -> Self {
-        Self {}
-    }
-
-    fn run<F>(&self, mut device: Device, handle_key_code: F) -> Result<()>
-    where
-        F: Fn(KeyCode) -> Result<()>,
-    {
-        loop {
-            for event in device.fetch_events()? {
-                if let EventSummary::Key(_, key_code, 1) = event.destructure() {
-                    handle_key_code(key_code)?
-                }
+fn handle_key_presses<F>(mut device: Device, handle_key_code: F) -> Result<()>
+where
+    F: Fn(KeyCode) -> Result<()>,
+{
+    loop {
+        for event in device.fetch_events()? {
+            if let EventSummary::Key(_, key_code, 1) = event.destructure() {
+                handle_key_code(key_code)?
             }
         }
     }
