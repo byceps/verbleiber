@@ -19,7 +19,7 @@ pub(crate) fn handle_button_presses(
     buttons_to_key_code_names: HashMap<Button, String>,
     sender: Sender<Event>,
 ) -> Result<()> {
-    let key_codes_to_buttons = map_key_codes_to_buttons(buttons_to_key_code_names)?;
+    let key_codes_to_buttons = KeyCodeToButtonMapping::new(buttons_to_key_code_names)?;
 
     let device = open_device(device_name)?;
 
@@ -28,19 +28,29 @@ pub(crate) fn handle_button_presses(
     Ok(())
 }
 
-fn map_key_codes_to_buttons(
-    buttons_to_key_code_names: HashMap<Button, String>,
-) -> Result<HashMap<KeyCode, Button>> {
-    let mut key_codes_to_buttons: HashMap<KeyCode, Button> = HashMap::new();
+struct KeyCodeToButtonMapping {
+    key_codes_to_buttons: HashMap<KeyCode, Button>,
+}
 
-    for (button, key_code_name) in buttons_to_key_code_names {
-        let key_code = find_key_code_by_name(&key_code_name)
-            .with_context(|| format!("Unknown button key code name '{}'", key_code_name))?;
+impl KeyCodeToButtonMapping {
+    fn new(buttons_to_key_code_names: HashMap<Button, String>) -> Result<Self> {
+        let mut key_codes_to_buttons: HashMap<KeyCode, Button> = HashMap::new();
 
-        key_codes_to_buttons.insert(key_code, button);
+        for (button, key_code_name) in buttons_to_key_code_names {
+            let key_code = find_key_code_by_name(&key_code_name)
+                .with_context(|| format!("Unknown button key code name '{}'", key_code_name))?;
+
+            key_codes_to_buttons.insert(key_code, button);
+        }
+
+        Ok(Self {
+            key_codes_to_buttons,
+        })
     }
 
-    Ok(key_codes_to_buttons)
+    fn find_button_for_key_code(&self, key_code: KeyCode) -> Option<Button> {
+        self.key_codes_to_buttons.get(&key_code).cloned()
+    }
 }
 
 fn open_device(device_name: String) -> Result<Device> {
@@ -49,12 +59,12 @@ fn open_device(device_name: String) -> Result<Device> {
 }
 
 struct ButtonHandler {
-    key_codes_to_buttons: HashMap<KeyCode, Button>,
+    key_codes_to_buttons: KeyCodeToButtonMapping,
     sender: Sender<Event>,
 }
 
 impl ButtonHandler {
-    fn new(key_codes_to_buttons: HashMap<KeyCode, Button>, sender: Sender<Event>) -> Self {
+    fn new(key_codes_to_buttons: KeyCodeToButtonMapping, sender: Sender<Event>) -> Self {
         Self {
             key_codes_to_buttons,
             sender,
@@ -74,7 +84,7 @@ impl ButtonHandler {
 
     fn handle_button_press(&self, event: InputEvent) -> Option<Button> {
         self.handle_key_press(event)
-            .and_then(|kc| self.find_button_for_key_code(kc))
+            .and_then(|kc| self.key_codes_to_buttons.find_button_for_key_code(kc))
     }
 
     fn handle_key_press(&self, event: InputEvent) -> Option<KeyCode> {
@@ -82,10 +92,6 @@ impl ButtonHandler {
             EventSummary::Key(_, key_code, 1) => Some(key_code),
             _ => None,
         }
-    }
-
-    fn find_button_for_key_code(&self, key_code: KeyCode) -> Option<Button> {
-        self.key_codes_to_buttons.get(&key_code).cloned()
     }
 }
 
