@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::thread;
 
 use anyhow::{Context, Result};
-use evdev::{Device, EventSummary, InputEvent, KeyCode};
+use evdev::{Device, EventSummary, KeyCode};
 use flume::Sender;
 use serde::Deserialize;
 
@@ -98,17 +98,10 @@ impl KeyPressHandler {
     {
         loop {
             for event in device.fetch_events()? {
-                if let Some(key_code) = self.handle_key_press(event) {
-                    handle_key_code(key_code)?;
+                if let EventSummary::Key(_, key_code, 1) = event.destructure() {
+                    handle_key_code(key_code)?
                 }
             }
-        }
-    }
-
-    fn handle_key_press(&self, event: InputEvent) -> Option<KeyCode> {
-        match event.destructure() {
-            EventSummary::Key(_, key_code, 1) => Some(key_code),
-            _ => None,
         }
     }
 }
