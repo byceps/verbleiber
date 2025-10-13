@@ -74,17 +74,15 @@ impl ButtonHandler {
     fn run(&self, mut device: Device) -> Result<()> {
         loop {
             for event in device.fetch_events()? {
-                if let Some(button) = self.handle_button_press(event) {
+                if let Some(button) = self
+                    .handle_key_press(event)
+                    .and_then(|kc| self.key_codes_to_buttons.find_button_for_key_code(kc))
+                {
                     let event = Event::ButtonPressed { button };
                     self.sender.send(event)?;
                 }
             }
         }
-    }
-
-    fn handle_button_press(&self, event: InputEvent) -> Option<Button> {
-        self.handle_key_press(event)
-            .and_then(|kc| self.key_codes_to_buttons.find_button_for_key_code(kc))
     }
 
     fn handle_key_press(&self, event: InputEvent) -> Option<KeyCode> {
