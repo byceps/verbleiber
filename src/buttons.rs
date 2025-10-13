@@ -24,7 +24,12 @@ pub(crate) fn handle_button_presses(
     let device = open_device(device_name)?;
 
     let button_handler = ButtonHandler::new(key_codes_to_buttons, sender);
-    thread::spawn(move || button_handler.run(device));
+
+    let key_press_handler = KeyPressHandler::new();
+    thread::spawn(move || {
+        key_press_handler.run(device, |key_code| button_handler.handle_key_code(key_code))
+    });
+
     Ok(())
 }
 
@@ -71,15 +76,30 @@ impl ButtonHandler {
         }
     }
 
-    fn run(&self, mut device: Device) -> Result<()> {
+    fn handle_key_code(&self, key_code: KeyCode) -> Result<()> {
+        if let Some(button) = self.key_codes_to_buttons.find_button_for_key_code(key_code) {
+            let event = Event::ButtonPressed { button };
+            self.sender.send(event)?;
+        }
+        Ok(())
+    }
+}
+
+struct KeyPressHandler {}
+
+impl KeyPressHandler {
+    fn new() -> Self {
+        Self {}
+    }
+
+    fn run<F>(&self, mut device: Device, handle_key_code: F) -> Result<()>
+    where
+        F: Fn(KeyCode) -> Result<()>,
+    {
         loop {
             for event in device.fetch_events()? {
-                if let Some(button) = self
-                    .handle_key_press(event)
-                    .and_then(|kc| self.key_codes_to_buttons.find_button_for_key_code(kc))
-                {
-                    let event = Event::ButtonPressed { button };
-                    self.sender.send(event)?;
+                if let Some(key_code) = self.handle_key_press(event) {
+                    handle_key_code(key_code)?;
                 }
             }
         }
