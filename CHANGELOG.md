@@ -1,7 +1,7 @@
 # Changelog
 
 
-## 0.9.0 (unreleased)
+## 0.9.0 (2025-10-14)
 
 - Added subcommand `identify-buttons` to show key code and name for pressed
   buttons.
