@@ -6,7 +6,7 @@ edition = "2024"
 rust-version = "1.85.0"
 description = "Log organizer whereabouts on events via RFID tags and buttons"
 readme = "README.md"
-repository = "https://github.com/lanresort/verbleiber"
+repository = "https://github.com/byceps/verbleiber"
 license = "MIT"
 keywords = ["presence", "rfid"]
 
