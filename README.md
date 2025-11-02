@@ -39,7 +39,8 @@ custom-built hardware would be a nice.
 For an implementation of a backend and overview frontend, which are not covered
 here, check out the [Whereabouts
 extension](https://github.com/lanresort/byceps-whereabouts) for the
-[BYCEPS](https://byceps.nwsnet.de/) LAN party platform.
+[BYCEPS](https://byceps.nwsnet.de/) LAN party platform. Meanwhile, the
+extension has been merged into BYCEPS and is available out-of-the-box.
 
 
 ## Usage
