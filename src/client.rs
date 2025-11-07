@@ -12,7 +12,7 @@ use crate::audio::AudioPlayer;
 use crate::buttons::Button;
 use crate::config::{ApiConfig, PartyConfig};
 use crate::events::{Event, EventReceiver};
-use crate::model::{UserId, UserMode};
+use crate::model::{CurrentUser, UserId, UserMode};
 use crate::random::Random;
 
 struct Client {
@@ -69,7 +69,7 @@ impl Client {
         Ok(())
     }
 
-    fn handle_tag_read(&self, tag: &str) -> Result<Option<UserId>> {
+    fn handle_tag_read(&self, tag: &str) -> Result<CurrentUser> {
         log::debug!("Requesting details for tag {} ...", tag);
         match self.api_client.get_tag_details(tag) {
             Ok(details) => match details {
@@ -88,20 +88,20 @@ impl Client {
 
                     log::debug!("Awaiting whereabouts for user {user_id} ...");
 
-                    Ok(Some(user_id))
+                    Ok(CurrentUser::User(user_id))
                 }
                 None => {
                     log::info!("Unknown user tag: {tag}");
                     self.play_sound("unknown_user_tag");
 
-                    Ok(None)
+                    Ok(CurrentUser::None)
                 }
             },
             Err(e) => {
                 log::warn!("Requesting tag details failed.\n{e}");
                 self.play_sound("communication_failed");
 
-                Ok(None)
+                Ok(CurrentUser::None)
             }
         }
     }
@@ -212,23 +212,23 @@ impl MultiUserClient {
     }
 
     fn handle_events(&self) -> Result<()> {
-        let mut current_user_id: Option<UserId> = None;
+        let mut current_user = CurrentUser::None;
 
         for msg in self.client.event_receiver.iter() {
             match msg {
                 Event::TagRead { tag } => {
                     log::debug!("Tag read: {tag}");
-                    current_user_id = self.client.handle_tag_read(&tag)?;
+                    current_user = self.client.handle_tag_read(&tag)?;
                 }
                 Event::ButtonPressed { button } => {
                     log::debug!("Button pressed: {:?}", button);
 
                     // Submit if user has identified; ignore if no user has
                     // been specified.
-                    if let Some(user_id) = current_user_id {
+                    if let CurrentUser::User(user_id) = current_user {
                         self.client
                             .handle_button_press_with_identified_user(&user_id, button)?;
-                        current_user_id = None; // reset
+                        current_user = CurrentUser::None; // reset
                     }
                 }
                 Event::ShutdownRequested => {

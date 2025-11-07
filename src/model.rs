@@ -11,3 +11,8 @@ pub(crate) enum UserMode {
     SingleUser(UserId),
     MultiUser,
 }
+
+pub(crate) enum CurrentUser {
+    None,
+    User(UserId),
+}
