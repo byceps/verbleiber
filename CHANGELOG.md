@@ -3,6 +3,8 @@
 
 ## 0.10.0 (unreleased)
 
+- Updated repository URL.
+
 
 ## 0.9.0 (2025-10-14)
 
