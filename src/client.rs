@@ -119,11 +119,14 @@ impl Client {
                 Ok(_) => {
                     log::debug!("Status successfully updated.");
 
-                    let sound_name =
-                        match &self.party_config.whereabouts_sounds.get(*whereabouts_name) {
-                            Some(sound_names) => &self.random.choose_random_element(sound_names),
-                            None => "status_changed",
-                        };
+                    let sound_name = &self
+                        .party_config
+                        .whereabouts_sounds
+                        .get(*whereabouts_name)
+                        .map(|sound_names| {
+                            self.random.choose_random_element(sound_names).to_owned()
+                        })
+                        .unwrap_or("status_changed".to_owned());
                     self.play_sound(sound_name);
                 }
                 Err(e) => {
