@@ -3,6 +3,8 @@
 
 ## 0.10.0 (unreleased)
 
+- Renamed configuration section `user` to `single_user` for clarity.
+
 - Renamed sounds:
 
   - `signon_successful` -> `sign_on_successful`

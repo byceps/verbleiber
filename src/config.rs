@@ -26,12 +26,12 @@ pub(crate) struct Config {
     pub sounds_path: PathBuf,
     pub api: ApiConfig,
     pub party: PartyConfig,
-    pub user: Option<UserConfig>,
+    pub single_user: Option<SingleUserConfig>,
 }
 
 impl Config {
     pub fn get_user_mode(&self) -> UserMode {
-        self.user
+        self.single_user
             .as_ref()
             .and_then(|x| x.id.clone())
             .map_or(UserMode::MultiUser, UserMode::SingleUser)
@@ -54,7 +54,7 @@ pub(crate) struct PartyConfig {
 }
 
 #[derive(Deserialize)]
-pub(crate) struct UserConfig {
+pub(crate) struct SingleUserConfig {
     pub id: Option<UserId>,
 }
 
