@@ -45,4 +45,4 @@ button4 = "mystery-zone"
 
 # Uncomment and provide user ID to enable single-user mode.
 #[single_user]
-#id = "00000000-0000-0000-0000-000000000000"
+#user_id = "00000000-0000-0000-0000-000000000000"

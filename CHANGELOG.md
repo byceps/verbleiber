@@ -5,6 +5,9 @@
 
 - Renamed configuration section `user` to `single_user` for clarity.
 
+- Renamed configuration property `id` in section `single_user` to `user_id` for
+  clarity.
+
 - Renamed sounds:
 
   - `signon_successful` -> `sign_on_successful`

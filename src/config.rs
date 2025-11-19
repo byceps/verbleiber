@@ -33,7 +33,7 @@ impl Config {
     pub fn get_user_mode(&self) -> UserMode {
         self.single_user
             .as_ref()
-            .and_then(|single_user_config| single_user_config.id.clone())
+            .and_then(|single_user_config| single_user_config.user_id.clone())
             .map(UserMode::SingleUser)
             .unwrap_or(UserMode::MultiUser)
     }
@@ -56,7 +56,7 @@ pub(crate) struct PartyConfig {
 
 #[derive(Deserialize)]
 pub(crate) struct SingleUserConfig {
-    pub id: Option<UserId>,
+    pub user_id: Option<UserId>,
 }
 
 pub(crate) fn load_config(path: &Path) -> Result<Config> {
