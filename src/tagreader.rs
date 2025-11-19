@@ -11,6 +11,7 @@ use evdev::{Device, EventSummary, EventType, InputEvent, KeyCode};
 use crate::devices;
 use crate::devices::DeviceName;
 use crate::events::EventSender;
+use crate::model::Tag;
 
 pub(crate) fn handle_tag_reads(device_name: DeviceName, event_sender: EventSender) -> Result<()> {
     let device = open_device(device_name)?;
@@ -38,8 +39,8 @@ impl TagReadHandler {
         let mut tag_reader = TagReader::new();
         loop {
             for event in device.fetch_events()? {
-                if let Some(value) = tag_reader.handle_event(event) {
-                    self.event_sender.send_tag_read(value.to_string())?;
+                if let Some(tag) = tag_reader.handle_event(event) {
+                    self.event_sender.send_tag_read(tag)?;
                 }
             }
         }
@@ -57,7 +58,7 @@ impl TagReader {
         }
     }
 
-    fn handle_event(&mut self, event: InputEvent) -> Option<String> {
+    fn handle_event(&mut self, event: InputEvent) -> Option<Tag> {
         if !self.is_key_released(event) {
             return None;
         }
@@ -69,7 +70,9 @@ impl TagReader {
 
                     self.chars_read.clear();
 
-                    Some(input.to_owned())
+                    Some(Tag {
+                        value: input.to_owned(),
+                    })
                 }
                 key_code => match self.get_char(key_code) {
                     Some(ch) => {

@@ -12,7 +12,7 @@ use crate::audio::{AudioPlayer, Sound};
 use crate::buttons::Button;
 use crate::config::{ApiConfig, PartyConfig};
 use crate::events::{Event, EventReceiver};
-use crate::model::{CurrentUser, UserId, UserMode};
+use crate::model::{CurrentUser, Tag, UserId, UserMode};
 use crate::random::Random;
 
 struct Client {
@@ -69,8 +69,8 @@ impl Client {
         Ok(())
     }
 
-    fn handle_tag_read(&self, tag: &str) -> Result<CurrentUser> {
-        log::debug!("Requesting details for tag {} ...", tag);
+    fn handle_tag_read(&self, tag: &Tag) -> Result<CurrentUser> {
+        log::debug!("Requesting details for tag {} ...", tag.value);
         match self.api_client.get_tag_details(tag) {
             Ok(details) => match details {
                 Some(details) => {
@@ -91,7 +91,7 @@ impl Client {
                     Ok(CurrentUser::User(user_id))
                 }
                 None => {
-                    log::info!("Unknown user tag: {tag}");
+                    log::info!("Unknown user tag: {}", tag.value);
                     self.play_sound(Sound::UserTagUnknown);
 
                     Ok(CurrentUser::None)
@@ -222,7 +222,7 @@ impl MultiUserClient {
         for msg in self.client.event_receiver.iter() {
             match msg {
                 Event::TagRead { tag } => {
-                    log::debug!("Tag read: {tag}");
+                    log::debug!("Tag read: {}", tag.value);
                     current_user = self.client.handle_tag_read(&tag)?;
                 }
                 Event::ButtonPressed { button } => {

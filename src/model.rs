@@ -3,6 +3,10 @@
  * License: MIT
  */
 
+pub(crate) struct Tag {
+    pub value: String,
+}
+
 pub(crate) type PartyId = String;
 
 pub(crate) type UserId = String;

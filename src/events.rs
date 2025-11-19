@@ -6,9 +6,10 @@
 use flume::{Receiver, SendError, Sender};
 
 use crate::buttons::Button;
+use crate::model::Tag;
 
 pub(crate) enum Event {
-    TagRead { tag: String },
+    TagRead { tag: Tag },
     ButtonPressed { button: Button },
     ShutdownRequested,
 }
@@ -25,7 +26,7 @@ impl EventSender {
         Self { sender }
     }
 
-    pub(crate) fn send_tag_read(&self, tag: String) -> Result<(), SendError<Event>> {
+    pub(crate) fn send_tag_read(&self, tag: Tag) -> Result<(), SendError<Event>> {
         self.send(Event::TagRead { tag })
     }
 

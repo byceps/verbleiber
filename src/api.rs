@@ -11,7 +11,7 @@ use ureq::{Agent, Error};
 
 use crate::config::ApiConfig;
 use crate::http::build_agent;
-use crate::model::{PartyId, UserId};
+use crate::model::{PartyId, Tag, UserId};
 
 pub(crate) struct ApiClient {
     pub base_url: String,
@@ -83,8 +83,8 @@ impl ApiClient {
         }
     }
 
-    pub(crate) fn get_tag_details(&self, tag: &str) -> Result<Option<TagDetails>> {
-        let url = format!("{}/tags/{}", &self.base_url, tag);
+    pub(crate) fn get_tag_details(&self, tag: &Tag) -> Result<Option<TagDetails>> {
+        let url = format!("{}/tags/{}", &self.base_url, tag.value);
 
         match self
             .agent
