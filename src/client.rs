@@ -44,11 +44,11 @@ impl Client {
         match self.api_client.sign_on() {
             Ok(()) => {
                 log::info!("Signed on.");
-                self.play_sound("signon_successful");
+                self.play_sound("sign_on_successful");
             }
             Err(e) => {
                 log::warn!("Signing on failed.\n{e}");
-                self.play_sound("signon_failed");
+                self.play_sound("sign_on_failed");
             }
         }
         Ok(())
@@ -59,11 +59,11 @@ impl Client {
         match self.api_client.sign_off() {
             Ok(()) => {
                 log::info!("Signed off.");
-                self.play_sound("signoff_successful");
+                self.play_sound("sign_off_successful");
             }
             Err(e) => {
                 log::warn!("Signing off failed.\n{e}");
-                self.play_sound("signoff_failed");
+                self.play_sound("sign_off_failed");
             }
         }
         Ok(())
@@ -92,7 +92,7 @@ impl Client {
                 }
                 None => {
                     log::info!("Unknown user tag: {tag}");
-                    self.play_sound("unknown_user_tag");
+                    self.play_sound("user_tag_unknown");
 
                     Ok(CurrentUser::None)
                 }
@@ -126,7 +126,7 @@ impl Client {
                         .map(|sound_names| {
                             self.random.choose_random_element(sound_names).to_owned()
                         })
-                        .unwrap_or("status_changed".to_owned());
+                        .unwrap_or("whereabouts_status_updated".to_owned());
                     self.play_sound(sound_name);
                 }
                 Err(e) => {
