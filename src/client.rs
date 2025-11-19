@@ -112,12 +112,12 @@ impl Client {
         button: Button,
     ) -> Result<()> {
         if let Some(whereabouts_name) = &self.party_config.buttons_to_whereabouts.get(&button) {
-            log::debug!("Submitting whereabouts for user {user_id} -> {whereabouts_name} ...");
+            log::debug!("Updating whereabouts status for user {user_id} -> {whereabouts_name} ...");
 
             let response = self.update_status(user_id, whereabouts_name);
             match response {
                 Ok(_) => {
-                    log::debug!("Status successfully updated.");
+                    log::debug!("Whereabouts status successfully updated.");
 
                     let sound_name = &self
                         .party_config
@@ -130,7 +130,7 @@ impl Client {
                     self.play_sound(sound_name);
                 }
                 Err(e) => {
-                    log::warn!("Status update failed.\n{e}");
+                    log::warn!("Whereabouts status update failed.\n{e}");
                     self.play_sound("communication_failed");
                 }
             }
