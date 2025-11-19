@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 
 use crate::api::ApiClient;
-use crate::audio::AudioPlayer;
+use crate::audio::{AudioPlayer, Sound};
 use crate::buttons::Button;
 use crate::config::{ApiConfig, PartyConfig};
 use crate::events::{Event, EventReceiver};
@@ -44,11 +44,11 @@ impl Client {
         match self.api_client.sign_on() {
             Ok(()) => {
                 log::info!("Signed on.");
-                self.play_sound("sign_on_successful");
+                self.play_sound(Sound::SignOnSuccessful);
             }
             Err(e) => {
                 log::warn!("Signing on failed.\n{e}");
-                self.play_sound("sign_on_failed");
+                self.play_sound(Sound::SignOnFailed);
             }
         }
         Ok(())
@@ -59,11 +59,11 @@ impl Client {
         match self.api_client.sign_off() {
             Ok(()) => {
                 log::info!("Signed off.");
-                self.play_sound("sign_off_successful");
+                self.play_sound(Sound::SignOffSuccessful);
             }
             Err(e) => {
                 log::warn!("Signing off failed.\n{e}");
-                self.play_sound("sign_off_failed");
+                self.play_sound(Sound::SignOffFailed);
             }
         }
         Ok(())
@@ -83,7 +83,7 @@ impl Client {
                     let user_id = details.user.id;
 
                     if let Some(name) = details.sound_name {
-                        self.play_sound(&name);
+                        self.play_sound(Sound::UserTagCustomGreeting(name));
                     }
 
                     log::debug!("Awaiting whereabouts for user {user_id} ...");
@@ -92,14 +92,14 @@ impl Client {
                 }
                 None => {
                     log::info!("Unknown user tag: {tag}");
-                    self.play_sound("user_tag_unknown");
+                    self.play_sound(Sound::UserTagUnknown);
 
                     Ok(CurrentUser::None)
                 }
             },
             Err(e) => {
                 log::warn!("Requesting tag details failed.\n{e}");
-                self.play_sound("communication_failed");
+                self.play_sound(Sound::CommunicationFailed);
 
                 Ok(CurrentUser::None)
             }
@@ -119,19 +119,20 @@ impl Client {
                 Ok(_) => {
                     log::debug!("Whereabouts status successfully updated.");
 
-                    let sound_name = &self
+                    let sound = self
                         .party_config
                         .whereabouts_sounds
                         .get(*whereabouts_name)
                         .map(|sound_names| {
                             self.random.choose_random_element(sound_names).to_owned()
                         })
-                        .unwrap_or("whereabouts_status_updated".to_owned());
-                    self.play_sound(sound_name);
+                        .map(Sound::WhereaboutsStatusUpdatedCustom)
+                        .unwrap_or(Sound::WhereaboutsStatusUpdated);
+                    self.play_sound(sound);
                 }
                 Err(e) => {
                     log::warn!("Whereabouts status update failed.\n{e}");
-                    self.play_sound("communication_failed");
+                    self.play_sound(Sound::CommunicationFailed);
                 }
             }
         }
@@ -149,8 +150,9 @@ impl Client {
         self.api_client.update_status(user_id, whereabouts_name)
     }
 
-    fn play_sound(&self, name: &str) {
-        if let Err(e) = self.audio_player.play(name) {
+    fn play_sound(&self, sound: Sound) {
+        let name = sound.get_name();
+        if let Err(e) = self.audio_player.play(&name) {
             log::warn!("Could not play sound: {e}");
         }
     }

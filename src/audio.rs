@@ -68,3 +68,31 @@ fn load_source(path: &Path) -> Result<Decoder<BufReader<File>>> {
     let file = BufReader::new(File::open(path)?);
     Ok(Decoder::new(file)?)
 }
+
+pub(crate) enum Sound {
+    SignOnSuccessful,
+    SignOnFailed,
+    SignOffSuccessful,
+    SignOffFailed,
+    UserTagCustomGreeting(String),
+    UserTagUnknown,
+    WhereaboutsStatusUpdated,
+    WhereaboutsStatusUpdatedCustom(String),
+    CommunicationFailed,
+}
+
+impl Sound {
+    pub fn get_name(&self) -> String {
+        match self {
+            Sound::SignOnSuccessful => "sign_on_successful".to_owned(),
+            Sound::SignOnFailed => "sign_on_failed".to_owned(),
+            Sound::SignOffSuccessful => "sign_off_successful".to_owned(),
+            Sound::SignOffFailed => "sign_off_failed".to_owned(),
+            Sound::UserTagCustomGreeting(name) => name.to_owned(),
+            Sound::UserTagUnknown => "user_tag_unknown".to_owned(),
+            Sound::WhereaboutsStatusUpdated => "whereabouts_status_updated".to_owned(),
+            Sound::WhereaboutsStatusUpdatedCustom(name) => name.to_owned(),
+            Sound::CommunicationFailed => "communication_failed".to_owned(),
+        }
+    }
+}
