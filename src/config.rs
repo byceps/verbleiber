@@ -34,7 +34,8 @@ impl Config {
         self.single_user
             .as_ref()
             .and_then(|single_user_config| single_user_config.id.clone())
-            .map_or(UserMode::MultiUser, UserMode::SingleUser)
+            .map(UserMode::SingleUser)
+            .unwrap_or(UserMode::MultiUser)
     }
 }
 
