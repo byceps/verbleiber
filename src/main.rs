@@ -58,8 +58,10 @@ fn run(config_filename: PathBuf) -> Result<()> {
     let config = config::load_config(&config_filename)?;
 
     let user_mode = config.get_user_mode();
-    match &user_mode {
-        UserMode::SingleUser(id) => log::info!("Running in single-user mode for user ID '{id}'."),
+    match user_mode {
+        UserMode::SingleUser(ref id) => {
+            log::info!("Running in single-user mode for user ID '{id}'.")
+        }
         UserMode::MultiUser => log::info!("Running in multi-user mode."),
     }
 
