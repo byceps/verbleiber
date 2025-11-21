@@ -15,6 +15,12 @@ use crate::events::{Event, EventReceiver};
 use crate::model::{CurrentUser, Tag, UserId, UserMode};
 use crate::random::Random;
 
+enum EventHandlingResult {
+    KeepCurrentUser,
+    SetCurrentUser(CurrentUser),
+    Abort,
+}
+
 pub(crate) struct Client {
     audio_player: AudioPlayer,
     random: Random,
@@ -59,17 +65,28 @@ impl Client {
 
     fn handle_single_user_events(&self, user_id: &UserId) -> Result<()> {
         for event in self.event_receiver.iter() {
-            match event {
+            let result = match event {
                 Event::TagRead { .. } => {
                     log::error!("Unexpected tag read event received.");
+                    EventHandlingResult::KeepCurrentUser
                 }
                 Event::ButtonPressed { button } => {
                     log::debug!("Button pressed: {:?}", button);
-
                     self.handle_button_press_with_identified_user(user_id, button)?;
+                    EventHandlingResult::KeepCurrentUser
                 }
                 Event::ShutdownRequested => {
                     self.shutdown()?;
+                    EventHandlingResult::Abort
+                }
+            };
+
+            match result {
+                EventHandlingResult::KeepCurrentUser => {}
+                EventHandlingResult::SetCurrentUser(_) => {
+                    log::error!("Unexpected attempt to set current user in single-user mode.");
+                }
+                EventHandlingResult::Abort => {
                     break;
                 }
             }
@@ -82,23 +99,37 @@ impl Client {
         let mut current_user = CurrentUser::None;
 
         for event in self.event_receiver.iter() {
-            match event {
+            let result = match event {
                 Event::TagRead { tag } => {
                     log::debug!("Tag read: {}", tag.value);
-                    current_user = self.handle_tag_read(&tag)?;
+                    let new_current_user = self.handle_tag_read(&tag)?;
+                    EventHandlingResult::SetCurrentUser(new_current_user)
                 }
                 Event::ButtonPressed { button } => {
                     log::debug!("Button pressed: {:?}", button);
 
                     // Submit if user has identified; ignore if no user has
                     // been specified.
-                    if let CurrentUser::User(user_id) = current_user {
-                        self.handle_button_press_with_identified_user(&user_id, button)?;
-                        current_user = CurrentUser::None; // reset
+                    match current_user {
+                        CurrentUser::User(ref user_id) => {
+                            self.handle_button_press_with_identified_user(user_id, button)?;
+                            EventHandlingResult::SetCurrentUser(CurrentUser::None)
+                        }
+                        CurrentUser::None => EventHandlingResult::KeepCurrentUser,
                     }
                 }
                 Event::ShutdownRequested => {
                     self.shutdown()?;
+                    EventHandlingResult::Abort
+                }
+            };
+
+            match result {
+                EventHandlingResult::KeepCurrentUser => {}
+                EventHandlingResult::SetCurrentUser(new_current_user) => {
+                    current_user = new_current_user;
+                }
+                EventHandlingResult::Abort => {
                     break;
                 }
             }
