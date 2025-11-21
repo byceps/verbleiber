@@ -65,23 +65,7 @@ impl Client {
 
     fn handle_single_user_events(&self, user_id: &UserId) -> Result<()> {
         for event in self.event_receiver.iter() {
-            let result = match event {
-                Event::TagRead { .. } => {
-                    log::error!("Unexpected tag read event received.");
-                    EventHandlingResult::KeepCurrentUser
-                }
-                Event::ButtonPressed { button } => {
-                    log::debug!("Button pressed: {:?}", button);
-                    self.handle_button_press_with_identified_user(user_id, button)?;
-                    EventHandlingResult::KeepCurrentUser
-                }
-                Event::ShutdownRequested => {
-                    self.shutdown()?;
-                    EventHandlingResult::Abort
-                }
-            };
-
-            match result {
+            match self.handle_single_user_event(event, user_id.clone())? {
                 EventHandlingResult::KeepCurrentUser => {}
                 EventHandlingResult::SetCurrentUser(_) => {
                     log::error!("Unexpected attempt to set current user in single-user mode.");
@@ -95,36 +79,33 @@ impl Client {
         Ok(())
     }
 
+    fn handle_single_user_event(
+        &self,
+        event: Event,
+        single_user_id: UserId,
+    ) -> Result<EventHandlingResult> {
+        Ok(match event {
+            Event::TagRead { .. } => {
+                log::error!("Unexpected tag read event received.");
+                EventHandlingResult::KeepCurrentUser
+            }
+            Event::ButtonPressed { button } => {
+                log::debug!("Button pressed: {:?}", button);
+                self.handle_button_press_with_identified_user(&single_user_id, button)?;
+                EventHandlingResult::KeepCurrentUser
+            }
+            Event::ShutdownRequested => {
+                self.shutdown()?;
+                EventHandlingResult::Abort
+            }
+        })
+    }
+
     fn handle_multi_user_events(&self) -> Result<()> {
         let mut current_user = CurrentUser::None;
 
         for event in self.event_receiver.iter() {
-            let result = match event {
-                Event::TagRead { tag } => {
-                    log::debug!("Tag read: {}", tag.value);
-                    let new_current_user = self.handle_tag_read(&tag)?;
-                    EventHandlingResult::SetCurrentUser(new_current_user)
-                }
-                Event::ButtonPressed { button } => {
-                    log::debug!("Button pressed: {:?}", button);
-
-                    // Submit if user has identified; ignore if no user has
-                    // been specified.
-                    match current_user {
-                        CurrentUser::User(ref user_id) => {
-                            self.handle_button_press_with_identified_user(user_id, button)?;
-                            EventHandlingResult::SetCurrentUser(CurrentUser::None)
-                        }
-                        CurrentUser::None => EventHandlingResult::KeepCurrentUser,
-                    }
-                }
-                Event::ShutdownRequested => {
-                    self.shutdown()?;
-                    EventHandlingResult::Abort
-                }
-            };
-
-            match result {
+            match self.handle_multi_user_event(event, &current_user)? {
                 EventHandlingResult::KeepCurrentUser => {}
                 EventHandlingResult::SetCurrentUser(new_current_user) => {
                     current_user = new_current_user;
@@ -136,6 +117,37 @@ impl Client {
         }
 
         Ok(())
+    }
+
+    fn handle_multi_user_event(
+        &self,
+        event: Event,
+        current_user: &CurrentUser,
+    ) -> Result<EventHandlingResult> {
+        Ok(match event {
+            Event::TagRead { tag } => {
+                log::debug!("Tag read: {}", tag.value);
+                let new_current_user = self.handle_tag_read(&tag)?;
+                EventHandlingResult::SetCurrentUser(new_current_user)
+            }
+            Event::ButtonPressed { button } => {
+                log::debug!("Button pressed: {:?}", button);
+
+                // Submit if user has identified; ignore if no user has
+                // been specified.
+                match current_user {
+                    CurrentUser::User(user_id) => {
+                        self.handle_button_press_with_identified_user(user_id, button)?;
+                        EventHandlingResult::SetCurrentUser(CurrentUser::None)
+                    }
+                    CurrentUser::None => EventHandlingResult::KeepCurrentUser,
+                }
+            }
+            Event::ShutdownRequested => {
+                self.shutdown()?;
+                EventHandlingResult::Abort
+            }
+        })
     }
 
     fn sign_on(&self) -> Result<()> {
