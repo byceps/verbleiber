@@ -15,7 +15,7 @@ use crate::events::{Event, EventReceiver};
 use crate::model::{CurrentUser, Tag, UserId, UserMode};
 use crate::random::Random;
 
-struct Client {
+pub(crate) struct Client {
     audio_player: AudioPlayer,
     random: Random,
     user_mode: UserMode,
@@ -25,7 +25,7 @@ struct Client {
 }
 
 impl Client {
-    fn new(
+    pub(crate) fn new(
         sounds_path: PathBuf,
         user_mode: UserMode,
         api_config: &ApiConfig,
@@ -42,7 +42,7 @@ impl Client {
         })
     }
 
-    fn run(&self) -> Result<()> {
+    pub(crate) fn run(&self) -> Result<()> {
         self.sign_on()?;
 
         self.handle_events()?;
@@ -224,21 +224,4 @@ impl Client {
             log::warn!("Could not play sound: {e}");
         }
     }
-}
-
-pub fn run_client(
-    sounds_path: PathBuf,
-    api_config: &ApiConfig,
-    party_config: PartyConfig,
-    event_receiver: EventReceiver,
-    user_mode: UserMode,
-) -> Result<()> {
-    let client = Client::new(
-        sounds_path,
-        user_mode,
-        api_config,
-        party_config,
-        event_receiver,
-    )?;
-    client.run()
 }
