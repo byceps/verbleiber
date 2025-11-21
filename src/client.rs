@@ -58,8 +58,8 @@ impl Client {
     }
 
     fn handle_single_user_events(&self, user_id: &UserId) -> Result<()> {
-        for msg in self.event_receiver.iter() {
-            match msg {
+        for event in self.event_receiver.iter() {
+            match event {
                 Event::TagRead { .. } => {
                     log::error!("Unexpected tag read event received.");
                 }
@@ -81,8 +81,8 @@ impl Client {
     fn handle_multi_user_events(&self) -> Result<()> {
         let mut current_user = CurrentUser::None;
 
-        for msg in self.event_receiver.iter() {
-            match msg {
+        for event in self.event_receiver.iter() {
+            match event {
                 Event::TagRead { tag } => {
                     log::debug!("Tag read: {}", tag.value);
                     current_user = self.handle_tag_read(&tag)?;
