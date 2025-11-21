@@ -18,6 +18,7 @@ use crate::random::Random;
 struct Client {
     audio_player: AudioPlayer,
     random: Random,
+    user_mode: UserMode,
     api_client: ApiClient,
     party_config: PartyConfig,
     event_receiver: EventReceiver,
@@ -26,6 +27,7 @@ struct Client {
 impl Client {
     fn new(
         sounds_path: PathBuf,
+        user_mode: UserMode,
         api_config: &ApiConfig,
         party_config: PartyConfig,
         event_receiver: EventReceiver,
@@ -33,10 +35,76 @@ impl Client {
         Ok(Self {
             audio_player: AudioPlayer::new(sounds_path)?,
             random: Random::new(),
+            user_mode,
             api_client: ApiClient::new(api_config, party_config.party_id.clone()),
             party_config,
             event_receiver,
         })
+    }
+
+    fn run(&self) -> Result<()> {
+        self.sign_on()?;
+
+        self.handle_events()?;
+
+        Ok(())
+    }
+
+    fn handle_events(&self) -> Result<()> {
+        match self.user_mode {
+            UserMode::SingleUser(ref user_id) => self.handle_single_user_events(user_id),
+            UserMode::MultiUser => self.handle_multi_user_events(),
+        }
+    }
+
+    fn handle_single_user_events(&self, user_id: &UserId) -> Result<()> {
+        for msg in self.event_receiver.iter() {
+            match msg {
+                Event::TagRead { .. } => {
+                    log::error!("Unexpected tag read event received.");
+                }
+                Event::ButtonPressed { button } => {
+                    log::debug!("Button pressed: {:?}", button);
+
+                    self.handle_button_press_with_identified_user(user_id, button)?;
+                }
+                Event::ShutdownRequested => {
+                    self.shutdown()?;
+                    break;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    fn handle_multi_user_events(&self) -> Result<()> {
+        let mut current_user = CurrentUser::None;
+
+        for msg in self.event_receiver.iter() {
+            match msg {
+                Event::TagRead { tag } => {
+                    log::debug!("Tag read: {}", tag.value);
+                    current_user = self.handle_tag_read(&tag)?;
+                }
+                Event::ButtonPressed { button } => {
+                    log::debug!("Button pressed: {:?}", button);
+
+                    // Submit if user has identified; ignore if no user has
+                    // been specified.
+                    if let CurrentUser::User(user_id) = current_user {
+                        self.handle_button_press_with_identified_user(&user_id, button)?;
+                        current_user = CurrentUser::None; // reset
+                    }
+                }
+                Event::ShutdownRequested => {
+                    self.shutdown()?;
+                    break;
+                }
+            }
+        }
+
+        Ok(())
     }
 
     fn sign_on(&self) -> Result<()> {
@@ -158,106 +226,19 @@ impl Client {
     }
 }
 
-struct SingleUserClient {
-    client: Client,
-    user_id: UserId,
-}
-
-impl SingleUserClient {
-    fn new(client: Client, user_id: UserId) -> Result<Self> {
-        Ok(Self { client, user_id })
-    }
-
-    fn run(&self) -> Result<()> {
-        self.client.sign_on()?;
-
-        self.handle_events(&self.user_id)?;
-
-        Ok(())
-    }
-
-    fn handle_events(&self, user_id: &UserId) -> Result<()> {
-        for msg in self.client.event_receiver.iter() {
-            match msg {
-                Event::TagRead { .. } => {
-                    log::error!("Unexpected tag read event received.");
-                }
-                Event::ButtonPressed { button } => {
-                    log::debug!("Button pressed: {:?}", button);
-
-                    self.client
-                        .handle_button_press_with_identified_user(user_id, button)?;
-                }
-                Event::ShutdownRequested => {
-                    self.client.shutdown()?;
-                    break;
-                }
-            }
-        }
-
-        Ok(())
-    }
-}
-
-struct MultiUserClient {
-    client: Client,
-}
-
-impl MultiUserClient {
-    fn new(client: Client) -> Result<Self> {
-        Ok(Self { client })
-    }
-
-    fn run(&self) -> Result<()> {
-        self.client.sign_on()?;
-
-        self.handle_events()?;
-
-        Ok(())
-    }
-
-    fn handle_events(&self) -> Result<()> {
-        let mut current_user = CurrentUser::None;
-
-        for msg in self.client.event_receiver.iter() {
-            match msg {
-                Event::TagRead { tag } => {
-                    log::debug!("Tag read: {}", tag.value);
-                    current_user = self.client.handle_tag_read(&tag)?;
-                }
-                Event::ButtonPressed { button } => {
-                    log::debug!("Button pressed: {:?}", button);
-
-                    // Submit if user has identified; ignore if no user has
-                    // been specified.
-                    if let CurrentUser::User(user_id) = current_user {
-                        self.client
-                            .handle_button_press_with_identified_user(&user_id, button)?;
-                        current_user = CurrentUser::None; // reset
-                    }
-                }
-                Event::ShutdownRequested => {
-                    self.client.shutdown()?;
-                    break;
-                }
-            }
-        }
-
-        Ok(())
-    }
-}
-
 pub fn run_client(
     sounds_path: PathBuf,
     api_config: &ApiConfig,
     party_config: PartyConfig,
     event_receiver: EventReceiver,
-    user_mode: &UserMode,
+    user_mode: UserMode,
 ) -> Result<()> {
-    let client = Client::new(sounds_path, api_config, party_config, event_receiver)?;
-
-    match user_mode {
-        UserMode::SingleUser(user_id) => SingleUserClient::new(client, user_id.clone())?.run(),
-        UserMode::MultiUser => MultiUserClient::new(client)?.run(),
-    }
+    let client = Client::new(
+        sounds_path,
+        user_mode,
+        api_config,
+        party_config,
+        event_receiver,
+    )?;
+    client.run()
 }

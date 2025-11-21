@@ -86,7 +86,7 @@ fn run(config_filename: PathBuf) -> Result<()> {
         tx3,
     )?;
 
-    run_client(sounds_path, &config.api, config.party, rx, &user_mode)?;
+    run_client(sounds_path, &config.api, config.party, rx, user_mode)?;
 
     Ok(())
 }
