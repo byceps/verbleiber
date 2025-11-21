@@ -64,11 +64,14 @@ impl Client {
     }
 
     fn handle_single_user_events(&self, user_id: &UserId) -> Result<()> {
+        let mut current_user = CurrentUser::User(user_id.clone());
+
         for event in self.event_receiver.iter() {
-            match self.handle_single_user_event(event, user_id.clone())? {
-                EventHandlingResult::KeepCurrentUser => {}
+            current_user = match self.handle_single_user_event(event, user_id.clone())? {
+                EventHandlingResult::KeepCurrentUser => current_user,
                 EventHandlingResult::SetCurrentUser(_) => {
                     log::error!("Unexpected attempt to set current user in single-user mode.");
+                    current_user
                 }
                 EventHandlingResult::Abort => {
                     break;
@@ -105,11 +108,9 @@ impl Client {
         let mut current_user = CurrentUser::None;
 
         for event in self.event_receiver.iter() {
-            match self.handle_multi_user_event(event, &current_user)? {
-                EventHandlingResult::KeepCurrentUser => {}
-                EventHandlingResult::SetCurrentUser(new_current_user) => {
-                    current_user = new_current_user;
-                }
+            current_user = match self.handle_multi_user_event(event, &current_user)? {
+                EventHandlingResult::KeepCurrentUser => current_user,
+                EventHandlingResult::SetCurrentUser(new_current_user) => new_current_user,
                 EventHandlingResult::Abort => {
                     break;
                 }
