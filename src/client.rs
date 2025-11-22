@@ -57,22 +57,21 @@ impl Client {
     }
 
     fn handle_events(&self) -> Result<()> {
-        match self.user_mode {
-            UserMode::SingleUser(ref user_id) => self.handle_single_user_events(user_id),
-            UserMode::MultiUser => self.handle_multi_user_events(),
-        }
-    }
-
-    fn handle_single_user_events(&self, user_id: &UserId) -> Result<()> {
-        let mut current_user = CurrentUser::User(user_id.clone());
+        let mut current_user = match self.user_mode {
+            UserMode::SingleUser(ref user_id) => CurrentUser::User(user_id.clone()),
+            UserMode::MultiUser => CurrentUser::None,
+        };
 
         for event in self.event_receiver.iter() {
-            current_user = match self.handle_single_user_event(event, user_id.clone())? {
-                EventHandlingResult::KeepCurrentUser => current_user,
-                EventHandlingResult::SetCurrentUser(_) => {
-                    log::error!("Unexpected attempt to set current user in single-user mode.");
-                    current_user
+            let result = match self.user_mode {
+                UserMode::SingleUser(ref user_id) => {
+                    self.handle_single_user_event(event, user_id.clone())?
                 }
+                UserMode::MultiUser => self.handle_multi_user_event(event, &current_user)?,
+            };
+            current_user = match result {
+                EventHandlingResult::KeepCurrentUser => current_user,
+                EventHandlingResult::SetCurrentUser(new_current_user) => new_current_user,
                 EventHandlingResult::Abort => {
                     break;
                 }
@@ -102,22 +101,6 @@ impl Client {
                 EventHandlingResult::Abort
             }
         })
-    }
-
-    fn handle_multi_user_events(&self) -> Result<()> {
-        let mut current_user = CurrentUser::None;
-
-        for event in self.event_receiver.iter() {
-            current_user = match self.handle_multi_user_event(event, &current_user)? {
-                EventHandlingResult::KeepCurrentUser => current_user,
-                EventHandlingResult::SetCurrentUser(new_current_user) => new_current_user,
-                EventHandlingResult::Abort => {
-                    break;
-                }
-            }
-        }
-
-        Ok(())
     }
 
     fn handle_multi_user_event(
