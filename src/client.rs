@@ -224,6 +224,10 @@ impl Client {
                 self.play_sound(Sound::AdminModeLeft);
                 EventHandlingResult::ResetCurrentUser
             }
+            Button::Button2 => {
+                self.event_sender.send_shutdown_requested()?;
+                EventHandlingResult::ResetCurrentUser
+            }
             _ => {
                 // Stay in admin mode.
                 EventHandlingResult::KeepCurrentUser
