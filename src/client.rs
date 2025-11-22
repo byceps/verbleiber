@@ -134,9 +134,19 @@ impl Client {
                     CurrentUser::None => EventHandlingResult::ResetCurrentUser,
                 }
             }
+            _ => self.handle_common_event(event)?,
+        })
+    }
+
+    fn handle_common_event(&self, event: Event) -> Result<EventHandlingResult> {
+        Ok(match event {
             Event::ShutdownRequested => {
                 self.shutdown()?;
                 EventHandlingResult::Abort
+            }
+            _ => {
+                log::warn!("Unexpected event, should have been be handled elsewhere.");
+                EventHandlingResult::KeepCurrentUser
             }
         })
     }
