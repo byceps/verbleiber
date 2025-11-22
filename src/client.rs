@@ -115,8 +115,7 @@ impl Client {
         Ok(match event {
             Event::TagRead { tag } => {
                 log::debug!("Tag read: {}", tag.value);
-                let new_current_user = self.handle_tag_read(&tag)?;
-                EventHandlingResult::SetCurrentUser(new_current_user)
+                self.handle_tag_read(&tag)?
             }
             Event::ButtonPressed { button } => {
                 log::debug!("Button pressed: {:?}", button);
@@ -168,7 +167,7 @@ impl Client {
         Ok(())
     }
 
-    fn handle_tag_read(&self, tag: &Tag) -> Result<CurrentUser> {
+    fn handle_tag_read(&self, tag: &Tag) -> Result<EventHandlingResult> {
         log::debug!("Requesting details for tag {} ...", tag.value);
         match self.api_client.get_tag_details(tag) {
             Ok(details) => match details {
@@ -187,20 +186,22 @@ impl Client {
 
                     log::debug!("Awaiting whereabouts for user {user_id} ...");
 
-                    Ok(CurrentUser::User(user_id))
+                    Ok(EventHandlingResult::SetCurrentUser(CurrentUser::User(
+                        user_id,
+                    )))
                 }
                 None => {
                     log::info!("Unknown user tag: {}", tag.value);
                     self.play_sound(Sound::UserTagUnknown);
 
-                    Ok(CurrentUser::None)
+                    Ok(EventHandlingResult::ResetCurrentUser)
                 }
             },
             Err(e) => {
                 log::warn!("Requesting tag details failed.\n{e}");
                 self.play_sound(Sound::CommunicationFailed);
 
-                Ok(CurrentUser::None)
+                Ok(EventHandlingResult::ResetCurrentUser)
             }
         }
     }
