@@ -143,7 +143,7 @@ impl Client {
         match self.api_client.sign_on() {
             Ok(()) => {
                 log::info!("Signed on.");
-                self.play_sound(Sound::SignOnSuccessful);
+                self.play_sound(Sound::SignOnSucceeded);
             }
             Err(e) => {
                 log::warn!("Signing on failed.\n{e}");
@@ -158,7 +158,7 @@ impl Client {
         match self.api_client.sign_off() {
             Ok(()) => {
                 log::info!("Signed off.");
-                self.play_sound(Sound::SignOffSuccessful);
+                self.play_sound(Sound::SignOffSucceeded);
             }
             Err(e) => {
                 log::warn!("Signing off failed.\n{e}");

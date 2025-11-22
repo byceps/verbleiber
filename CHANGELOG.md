@@ -13,9 +13,9 @@
 
 - Renamed sounds:
 
-  - `signon_successful` -> `sign_on_successful`
+  - `signon_successful` -> `sign_on_succeeded`
   - `signon_failed` -> `sign_on_failed`
-  - `signoff_successful` -> `sign_off_successful`
+  - `signoff_successful` -> `sign_off_succeeded`
   - `signoff_failed` -> `sign_off_failed`
   - `unknown_user_tag` -> `user_tag_unknown`
   - `status_changed` -> `whereabouts_status_updated`
