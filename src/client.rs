@@ -12,7 +12,7 @@ use crate::api::ApiClient;
 use crate::audio::{AudioPlayer, Sound};
 use crate::buttons::Button;
 use crate::config::{ApiConfig, PartyConfig};
-use crate::events::{Event, EventReceiver};
+use crate::events::{Event, EventReceiver, EventSender};
 use crate::model::{CurrentUser, Tag, UserId, UserMode};
 use crate::random::Random;
 
@@ -31,6 +31,7 @@ pub(crate) struct Client {
     api_client: ApiClient,
     party_config: PartyConfig,
     event_receiver: EventReceiver,
+    event_sender: EventSender,
 }
 
 impl Client {
@@ -41,6 +42,7 @@ impl Client {
         api_config: &ApiConfig,
         party_config: PartyConfig,
         event_receiver: EventReceiver,
+        event_sender: EventSender,
     ) -> Result<Self> {
         Ok(Self {
             audio_player: AudioPlayer::new(sounds_path)?,
@@ -50,6 +52,7 @@ impl Client {
             api_client: ApiClient::new(api_config, party_config.party_id.clone()),
             party_config,
             event_receiver,
+            event_sender,
         })
     }
 

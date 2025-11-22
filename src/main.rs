@@ -72,6 +72,7 @@ fn run(config_filename: PathBuf) -> Result<()> {
     let (tx1, rx): (EventSender, EventReceiver) = events::create_event_channel();
     let tx2 = tx1.clone();
     let tx3 = tx1.clone();
+    let tx4 = tx1.clone();
 
     ctrlc::set_handler(move || handle_ctrl_c(&tx1)).expect("Could not set Ctrl-C handler");
 
@@ -95,6 +96,7 @@ fn run(config_filename: PathBuf) -> Result<()> {
         &config.api,
         config.party,
         rx,
+        tx4,
     )?;
     client.run()
 }
