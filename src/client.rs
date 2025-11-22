@@ -18,6 +18,7 @@ use crate::random::Random;
 enum EventHandlingResult {
     KeepCurrentUser,
     SetCurrentUser(CurrentUser),
+    ResetCurrentUser,
     Abort,
 }
 
@@ -57,10 +58,12 @@ impl Client {
     }
 
     fn handle_events(&self) -> Result<()> {
-        let mut current_user = match self.user_mode {
+        let default_current_user = match self.user_mode {
             UserMode::SingleUser(ref user_id) => CurrentUser::User(user_id.clone()),
             UserMode::MultiUser => CurrentUser::None,
         };
+
+        let mut current_user = default_current_user.clone();
 
         for event in self.event_receiver.iter() {
             let result = match self.user_mode {
@@ -70,8 +73,9 @@ impl Client {
                 UserMode::MultiUser => self.handle_multi_user_event(event, &current_user)?,
             };
             current_user = match result {
-                EventHandlingResult::KeepCurrentUser => current_user,
-                EventHandlingResult::SetCurrentUser(new_current_user) => new_current_user,
+                EventHandlingResult::KeepCurrentUser => current_user.clone(),
+                EventHandlingResult::SetCurrentUser(new_current_user) => new_current_user.clone(),
+                EventHandlingResult::ResetCurrentUser => default_current_user.clone(),
                 EventHandlingResult::Abort => {
                     break;
                 }
@@ -89,12 +93,12 @@ impl Client {
         Ok(match event {
             Event::TagRead { .. } => {
                 log::error!("Unexpected tag read event received.");
-                EventHandlingResult::KeepCurrentUser
+                EventHandlingResult::ResetCurrentUser
             }
             Event::ButtonPressed { button } => {
                 log::debug!("Button pressed: {:?}", button);
                 self.handle_button_press_with_identified_user(&single_user_id, button)?;
-                EventHandlingResult::KeepCurrentUser
+                EventHandlingResult::ResetCurrentUser
             }
             Event::ShutdownRequested => {
                 self.shutdown()?;
@@ -122,9 +126,9 @@ impl Client {
                 match current_user {
                     CurrentUser::User(user_id) => {
                         self.handle_button_press_with_identified_user(user_id, button)?;
-                        EventHandlingResult::SetCurrentUser(CurrentUser::None)
+                        EventHandlingResult::ResetCurrentUser
                     }
-                    CurrentUser::None => EventHandlingResult::KeepCurrentUser,
+                    CurrentUser::None => EventHandlingResult::ResetCurrentUser,
                 }
             }
             Event::ShutdownRequested => {

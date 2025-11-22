@@ -16,6 +16,7 @@ pub(crate) enum UserMode {
     MultiUser,
 }
 
+#[derive(Clone)]
 pub(crate) enum CurrentUser {
     None,
     User(UserId),
