@@ -3,6 +3,7 @@
  * License: MIT
  */
 
+#[derive(Eq, Hash, PartialEq)]
 pub(crate) struct Tag {
     pub value: String,
 }
@@ -19,5 +20,6 @@ pub(crate) enum UserMode {
 #[derive(Clone)]
 pub(crate) enum CurrentUser {
     None,
+    Admin,
     User(UserId),
 }

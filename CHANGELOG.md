@@ -3,6 +3,9 @@
 
 ## 0.10.0 (unreleased)
 
+- Introduced admin mode. Can be entered in multi-user mode using tags which can
+  be configured in the new `admin` section.
+
 - Renamed configuration section `user` to `single_user` for clarity.
 
 - Renamed configuration property `id` in section `single_user` to `user_id` for

@@ -43,6 +43,11 @@ button4 = "mystery-zone"
     "willkommen-in-der-mystery-zone",
 ]
 
+#[admin]
+#tags = [
+#    "0123456789",
+#]
+
 # Uncomment and provide user ID to enable single-user mode.
 #[single_user]
 #user_id = "00000000-0000-0000-0000-000000000000"

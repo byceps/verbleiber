@@ -70,6 +70,8 @@ fn load_source(path: &Path) -> Result<Decoder<BufReader<File>>> {
 }
 
 pub(crate) enum Sound {
+    AdminModeEntered,
+    AdminModeLeft,
     SignOnSuccessful,
     SignOnFailed,
     SignOffSuccessful,
@@ -84,6 +86,8 @@ pub(crate) enum Sound {
 impl Sound {
     pub fn get_name(&self) -> String {
         match self {
+            Sound::AdminModeEntered => "admin_mode_entered".to_owned(),
+            Sound::AdminModeLeft => "admin_mode_left".to_owned(),
             Sound::SignOnSuccessful => "sign_on_successful".to_owned(),
             Sound::SignOnFailed => "sign_on_failed".to_owned(),
             Sound::SignOffSuccessful => "sign_off_successful".to_owned(),

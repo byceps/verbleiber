@@ -3,6 +3,7 @@
  * License: MIT
  */
 
+use std::collections::HashSet;
 use std::path::PathBuf;
 
 use anyhow::Result;
@@ -26,6 +27,7 @@ pub(crate) struct Client {
     audio_player: AudioPlayer,
     random: Random,
     user_mode: UserMode,
+    admin_tags: HashSet<Tag>,
     api_client: ApiClient,
     party_config: PartyConfig,
     event_receiver: EventReceiver,
@@ -35,6 +37,7 @@ impl Client {
     pub(crate) fn new(
         sounds_path: PathBuf,
         user_mode: UserMode,
+        admin_tags: HashSet<Tag>,
         api_config: &ApiConfig,
         party_config: PartyConfig,
         event_receiver: EventReceiver,
@@ -43,6 +46,7 @@ impl Client {
             audio_player: AudioPlayer::new(sounds_path)?,
             random: Random::new(),
             user_mode,
+            admin_tags,
             api_client: ApiClient::new(api_config, party_config.party_id.clone()),
             party_config,
             event_receiver,
@@ -119,9 +123,8 @@ impl Client {
             Event::ButtonPressed { button } => {
                 log::debug!("Button pressed: {:?}", button);
 
-                // Submit if user has identified; ignore if no user has
-                // been specified.
                 match current_user {
+                    CurrentUser::Admin => self.handle_button_press_by_admin(button)?,
                     CurrentUser::User(user_id) => {
                         self.handle_button_press_with_identified_user(user_id, button)?
                     }
@@ -166,6 +169,12 @@ impl Client {
     }
 
     fn handle_tag_read(&self, tag: &Tag) -> Result<EventHandlingResult> {
+        if self.admin_tags.contains(tag) {
+            self.play_sound(Sound::AdminModeEntered);
+            log::info!("Entering admin mode.");
+            return Ok(EventHandlingResult::SetCurrentUser(CurrentUser::Admin));
+        }
+
         log::debug!("Requesting details for tag {} ...", tag.value);
         match self.api_client.get_tag_details(tag) {
             Ok(details) => match details {
@@ -202,6 +211,21 @@ impl Client {
                 Ok(EventHandlingResult::ResetCurrentUser)
             }
         }
+    }
+
+    fn handle_button_press_by_admin(&self, button: Button) -> Result<EventHandlingResult> {
+        Ok(match button {
+            Button::Button1 => {
+                // Leave admin mode.
+                log::info!("Leaving admin mode.");
+                self.play_sound(Sound::AdminModeLeft);
+                EventHandlingResult::ResetCurrentUser
+            }
+            _ => {
+                // Stay in admin mode.
+                EventHandlingResult::KeepCurrentUser
+            }
+        })
     }
 
     fn handle_button_press_with_identified_user(

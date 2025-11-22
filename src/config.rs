@@ -3,7 +3,7 @@
  * License: MIT
  */
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
 
@@ -13,7 +13,7 @@ use serde::Deserialize;
 use crate::buttons::Button;
 use crate::devices::DeviceName;
 use crate::keycodenames::KeyName;
-use crate::model::{PartyId, UserId, UserMode};
+use crate::model::{PartyId, Tag, UserId, UserMode};
 
 #[derive(Deserialize)]
 pub(crate) struct Config {
@@ -26,10 +26,21 @@ pub(crate) struct Config {
     pub sounds_path: PathBuf,
     pub api: ApiConfig,
     pub party: PartyConfig,
+    pub admin: Option<AdminConfig>,
     pub single_user: Option<SingleUserConfig>,
 }
 
 impl Config {
+    pub fn get_admin_tags(&self) -> HashSet<Tag> {
+        self.admin
+            .as_ref()
+            .and_then(|admin_config| admin_config.tags.clone())
+            .unwrap_or_default()
+            .into_iter()
+            .map(|s| Tag { value: s })
+            .collect()
+    }
+
     pub fn get_user_mode(&self) -> UserMode {
         self.single_user
             .as_ref()
@@ -52,6 +63,11 @@ pub(crate) struct PartyConfig {
     pub party_id: PartyId,
     pub buttons_to_whereabouts: HashMap<Button, String>,
     pub whereabouts_sounds: HashMap<String, Vec<String>>,
+}
+
+#[derive(Deserialize)]
+pub(crate) struct AdminConfig {
+    pub tags: Option<HashSet<String>>,
 }
 
 #[derive(Deserialize)]
