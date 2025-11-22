@@ -97,8 +97,7 @@ impl Client {
             }
             Event::ButtonPressed { button } => {
                 log::debug!("Button pressed: {:?}", button);
-                self.handle_button_press_with_identified_user(&single_user_id, button)?;
-                EventHandlingResult::ResetCurrentUser
+                self.handle_button_press_with_identified_user(&single_user_id, button)?
             }
             Event::ShutdownRequested => {
                 self.shutdown()?;
@@ -124,8 +123,7 @@ impl Client {
                 // been specified.
                 match current_user {
                     CurrentUser::User(user_id) => {
-                        self.handle_button_press_with_identified_user(user_id, button)?;
-                        EventHandlingResult::ResetCurrentUser
+                        self.handle_button_press_with_identified_user(user_id, button)?
                     }
                     CurrentUser::None => EventHandlingResult::ResetCurrentUser,
                 }
@@ -210,7 +208,7 @@ impl Client {
         &self,
         user_id: &UserId,
         button: Button,
-    ) -> Result<()> {
+    ) -> Result<EventHandlingResult> {
         if let Some(whereabouts_name) = &self.party_config.buttons_to_whereabouts.get(&button) {
             log::debug!("Updating whereabouts status for user {user_id} -> {whereabouts_name} ...");
 
@@ -236,7 +234,8 @@ impl Client {
                 }
             }
         }
-        Ok(())
+
+        Ok(EventHandlingResult::ResetCurrentUser)
     }
 
     fn shutdown(&self) -> Result<()> {
