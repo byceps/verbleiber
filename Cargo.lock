@@ -710,12 +710,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nanorand"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e3d189da485332e96ba8a5ef646a311871abd7915bf06ac848a9117f19cf6e4"
-
-[[package]]
 name = "ndk"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1489,9 +1483,9 @@ dependencies = [
  "clap",
  "ctrlc",
  "evdev",
+ "fastrand",
  "flume",
  "log",
- "nanorand",
  "rodio",
  "serde",
  "simple_logger",

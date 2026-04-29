@@ -14,7 +14,7 @@ use crate::buttons::Button;
 use crate::config::{ApiConfig, PartyConfig};
 use crate::events::{Event, EventReceiver, EventSender};
 use crate::model::{CurrentUser, Tag, UserId, UserMode};
-use crate::random::Random;
+use crate::random;
 
 enum EventHandlingResult {
     KeepCurrentUser,
@@ -25,7 +25,6 @@ enum EventHandlingResult {
 
 pub(crate) struct Client {
     audio_player: AudioPlayer,
-    random: Random,
     user_mode: UserMode,
     admin_tags: HashSet<Tag>,
     api_client: ApiClient,
@@ -46,7 +45,6 @@ impl Client {
     ) -> Result<Self> {
         Ok(Self {
             audio_player: AudioPlayer::new(sounds_path)?,
-            random: Random::new(),
             user_mode,
             admin_tags,
             api_client: ApiClient::new(api_config, party_config.party_id.clone()),
@@ -262,9 +260,7 @@ impl Client {
                         .party_config
                         .whereabouts_sounds
                         .get(*whereabouts_name)
-                        .map(|sound_names| {
-                            self.random.choose_random_element(sound_names).to_owned()
-                        })
+                        .and_then(|sound_names| random::choose_random_element(sound_names))
                         .map(Sound::WhereaboutsStatusUpdatedCustom)
                         .unwrap_or(Sound::WhereaboutsStatusUpdated);
                     self.play_sound(sound);

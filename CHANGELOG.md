@@ -22,6 +22,8 @@
 
 - Raised minimum supported Rust version to 1.95.0.
 
+- Replaced nanorand with fastrand v2.4.1.
+
 - Updated clap to v4.6.1.
 
 - Updated ctrlc to v3.5.1.
