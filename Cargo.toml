@@ -17,7 +17,7 @@ clap = { version = "4.6.1", default-features = false, features = ["derive", "err
 ctrlc = "3.5.1"
 evdev = "0.13.2"
 flume = "0.12.0"
-log = { version = "0.4.28", features = ["std"] }
+log = { version = "0.4.29", features = ["std"] }
 nanorand = "0.8.0"
 rodio = { version = "0.21.1", default-features = false, features = ["playback", "vorbis"] }
 serde = { version = "1.0", features = ["derive"] }

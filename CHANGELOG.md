@@ -30,6 +30,8 @@
 
 - Updated flume to v0.12.0.
 
+- Updated log to v0.4.29.
+
 - Updated repository URL.
 
 
