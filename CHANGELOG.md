@@ -5,6 +5,8 @@
 
 - Updated ctrlc to v3.5.2.
 
+- Updated transitive dependency bytes to v1.11.1 to fix security issue.
+
 
 ## 0.10.0 (2026-04-29)
 
