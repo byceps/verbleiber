@@ -36,6 +36,8 @@
 
 - Updated toml to v1.1.2.
 
+- Updated ureq to v3.3.0.
+
 - Updated repository URL.
 
 
