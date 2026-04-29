@@ -3,6 +3,8 @@
 
 ## 0.11.0 (unreleased)
 
+- Updated ctrlc to v3.5.2.
+
 
 ## 0.10.0 (2026-04-29)
 
