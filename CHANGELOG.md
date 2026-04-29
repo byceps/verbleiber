@@ -32,6 +32,8 @@
 
 - Updated log to v0.4.29.
 
+- Updated simple_logger to v5.2.0.
+
 - Updated repository URL.
 
 
