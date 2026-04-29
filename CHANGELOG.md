@@ -20,6 +20,8 @@
   - `unknown_user_tag` -> `user_tag_unknown`
   - `status_changed` -> `whereabouts_status_updated`
 
+- Raised minimum supported Rust version to 1.95.0.
+
 - Updated repository URL.
 
 
