@@ -1,6 +1,6 @@
 [package]
 name = "verbleiber"
-version = "0.10.0-dev"
+version = "0.10.0"
 authors = ["Jochen Kupperschmidt"]
 edition = "2024"
 rust-version = "1.95.0"

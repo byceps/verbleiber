@@ -1,7 +1,7 @@
 # Changelog
 
 
-## 0.10.0 (unreleased)
+## 0.10.0 (2026-04-29)
 
 - Introduced admin mode. Can be entered in multi-user mode using tags which can
   be configured in the new `admin` section.
