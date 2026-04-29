@@ -22,6 +22,8 @@
 
 - Raised minimum supported Rust version to 1.95.0.
 
+- Updated clap to v4.6.1.
+
 - Updated repository URL.
 
 
