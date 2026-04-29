@@ -28,6 +28,8 @@
 
 - Updated evdev to v0.13.2.
 
+- Updated flume to v0.12.0.
+
 - Updated repository URL.
 
 
