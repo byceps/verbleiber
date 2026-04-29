@@ -7,6 +7,9 @@
 
 - Updated transitive dependency bytes to v1.11.1 to fix security issue.
 
+- Updated transitive dependency rustls-webpki to v0.103.13 to fix security
+  issues.
+
 
 ## 0.10.0 (2026-04-29)
 
