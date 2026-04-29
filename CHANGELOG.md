@@ -34,6 +34,8 @@
 
 - Updated simple_logger to v5.2.0.
 
+- Updated toml to v1.1.2.
+
 - Updated repository URL.
 
 
