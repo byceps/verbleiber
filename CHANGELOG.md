@@ -24,6 +24,8 @@
 
 - Updated clap to v4.6.1.
 
+- Updated ctrlc to v3.5.1.
+
 - Updated repository URL.
 
 
