@@ -3,6 +3,8 @@
 
 ## 0.11.0 (unreleased)
 
+- Updated anyhow to v1.0.102.
+
 - Updated ctrlc to v3.5.2.
 
 - Updated transitive dependency bytes to v1.11.1 to fix security issue.
