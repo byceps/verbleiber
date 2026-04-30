@@ -1,6 +1,9 @@
 # Changelog
 
 
+## 0.11.0 (unreleased)
+
+
 ## 0.10.1 (2026-04-30)
 
 - Updated anyhow to v1.0.102.
